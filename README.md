@@ -1,1 +1,0 @@
-# WIFI-QR-SCANNER
