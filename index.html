@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>WiFi QR Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --glass-bg: rgba(255,255,255,0.18);
+      --glass-border: rgba(255,255,255,0.30);
+      --glass-shadow: 0 30px 70px -25px rgba(0,0,0,0.25);
+      --glass-blur: blur(28px) saturate(1.3);
+      --bg-start: #dce6f5; --bg-end: #c2d2ea;
+      --text-primary: #071627; --text-secondary: #1f3452;
+      --text-muted: #4d6488; --accent: #1a6bff;
+      --accent-glow: rgba(26,107,255,0.40); --accent-light: #5c8eff;
+      --success: #0f8b5e; --success-bg: rgba(15,139,94,0.15);
+      --danger: #d1454b; --border-light: rgba(255,255,255,0.40);
+      --card-bg: rgba(255,255,255,0.20); --footer-text: #3a5078;
+    }
+    [data-theme="dark"] {
+      --bg-start: #080f20; --bg-end: #111c34;
+      --glass-bg: rgba(12,22,46,0.40); --glass-border: rgba(255,255,255,0.07);
+      --glass-shadow: 0 30px 70px -25px rgba(0,0,0,0.7);
+      --text-primary: #ecf2fc; --text-secondary: #b0c6e8;
+      --text-muted: #6f86ac; --accent: #5c8eff;
+      --accent-glow: rgba(92,142,255,0.30); --accent-light: #8bb3ff;
+      --success: #3dd68c; --success-bg: rgba(61,214,140,0.15);
+      --border-light: rgba(255,255,255,0.06);
+      --card-bg: rgba(18,30,54,0.45); --footer-text: #8899bb;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(155deg, var(--bg-start), var(--bg-end));
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem; transition: background 0.35s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+    .glass-wrap {
+      width: 100%; max-width: 720px; margin: 0 auto;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border); border-radius: 3.2rem;
+      box-shadow: var(--glass-shadow); padding: 2.2rem 2.2rem 1.8rem;
+      transition: all 0.3s ease;
+      animation: floatIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes floatIn {
+      0% { opacity:0; transform:translateY(30px) scale(0.96); }
+      100% { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @media (max-width:500px) {
+      .glass-wrap { padding:1.4rem 1.2rem 1.2rem; border-radius:2rem; }
+      body { padding:0.8rem; }
+    }
+    .glass-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4rem; }
+    .brand { display:flex; align-items:center; gap:0.6rem; text-decoration:none; font-weight:800; font-size:1.25rem; letter-spacing:-0.02em; }
+    .brand .logo-text { color:var(--text-primary); transition:color 0.3s; }
+    .brand .logo-text .accent { color:var(--accent); transition:color 0.3s; }
+    .brand-icon { width:36px; height:36px; background:linear-gradient(145deg,var(--accent),var(--accent-light)); border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px var(--accent-glow); flex-shrink:0; }
+    .brand-icon svg { width:19px; height:19px; fill:white; }
+    .theme-toggle { background:var(--card-bg); border:1px solid var(--glass-border); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-radius:60px; width:42px; height:42px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); transition:0.25s; flex-shrink:0; }
+    .theme-toggle:hover { background:rgba(255,255,255,0.22); transform:scale(1.04); }
+    .theme-toggle svg { width:20px; height:20px; stroke:currentColor; stroke-width:1.8; fill:none; }
+    .sun-icon { display:none; }
+    [data-theme="dark"] .moon-icon { display:none; }
+    [data-theme="dark"] .sun-icon { display:block; }
+    .hero-center { text-align:center; margin-bottom:1.8rem; }
+    .headline { font-size:clamp(2rem,7.5vw,3.4rem); font-weight:900; letter-spacing:-0.04em; line-height:1.02; color:var(--text-primary); margin-bottom:0.15rem; }
+    .headline em { font-style:normal; background:linear-gradient(145deg,var(--accent),var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .sub { font-size:1rem; color:var(--text-secondary); font-weight:400; opacity:0.85; }
+    .tab-bar { display:flex; gap:0.4rem; background:rgba(255,255,255,0.18); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-radius:80px; padding:5px; margin-bottom:1.6rem; border:1px solid var(--border-light); }
+    .tab-btn { flex:1; padding:0.6rem 0.2rem; border-radius:60px; border:none; background:transparent; font-family:'Inter',sans-serif; font-weight:600; font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; justify-content:center; gap:0.4rem; transition:0.2s; cursor:pointer; }
+    .tab-btn.active { background:rgba(255,255,255,0.45); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:var(--text-primary); box-shadow:0 6px 20px rgba(0,0,0,0.02); }
+    [data-theme="dark"] .tab-btn.active { background:rgba(255,255,255,0.07); color:white; }
+    .tab-btn svg { width:16px; height:16px; stroke:currentColor; stroke-width:1.8; fill:none; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+    .viewfinder { position:relative; width:100%; aspect-ratio:1/1; max-width:320px; margin:0 auto 1.2rem; background:rgba(0,0,0,0.04); border-radius:34px; overflow:hidden; border:1px solid var(--border-light); }
+    #qr-video { width:100% !important; height:100% !important; object-fit:cover; }
+    .vf-overlay { position:absolute; inset:0; pointer-events:none; z-index:2; }
+    .corner { position:absolute; width:24px; height:24px; border-color:var(--accent); border-style:solid; border-width:0; opacity:0.7; }
+    .corner.tl { top:18px; left:18px; border-top-width:3.5px; border-left-width:3.5px; border-radius:10px 0 0 0; }
+    .corner.tr { top:18px; right:18px; border-top-width:3.5px; border-right-width:3.5px; border-radius:0 10px 0 0; }
+    .corner.bl { bottom:18px; left:18px; border-bottom-width:3.5px; border-left-width:3.5px; border-radius:0 0 0 10px; }
+    .corner.br { bottom:18px; right:18px; border-bottom-width:3.5px; border-right-width:3.5px; border-radius:0 0 10px 0; }
+    .scan-line { position:absolute; left:18%; right:18%; height:2.5px; background:linear-gradient(90deg,transparent,var(--accent),transparent); box-shadow:0 0 24px var(--accent-glow); top:16px; z-index:3; animation:scanMove 2.4s ease-in-out infinite; display:none; opacity:0.8; }
+    @keyframes scanMove { 0%{top:16px;opacity:0;} 12%{opacity:1;} 88%{opacity:1;} 100%{top:calc(100% - 20px);opacity:0;} }
+    .vf-placeholder { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.4rem; color:var(--text-muted); font-size:0.75rem; font-weight:500; }
+    .vf-placeholder svg { width:42px; height:42px; opacity:0.25; stroke:var(--text-muted); stroke-width:1.4; fill:none; }
+    .detected .corner { border-color:var(--success); }
+    .btn-group { display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.3rem; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.75rem 1.5rem; border-radius:60px; border:1px solid var(--border-light); font-family:'Inter',sans-serif; font-weight:600; font-size:0.8rem; background:var(--card-bg); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:var(--text-primary); cursor:pointer; transition:0.25s; flex:1 1 auto; }
+    .btn-primary { background:linear-gradient(145deg,var(--accent),var(--accent-light)); border-color:transparent; color:white; box-shadow:0 8px 28px var(--accent-glow); }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 16px 40px var(--accent-glow); }
+    .btn-soft { background:rgba(255,255,255,0.20); backdrop-filter:blur(10px); border-color:var(--border-light); }
+    .btn-danger { background:rgba(209,69,75,0.12); color:var(--danger); border-color:rgba(209,69,75,0.12); }
+    .btn-success-soft { background:var(--success-bg); color:var(--success); border-color:rgba(15,139,94,0.10); }
+    .btn:disabled { opacity:0.35; pointer-events:none; }
+    .status-msg { display:none; align-items:center; gap:0.5rem; padding:0.6rem 1.2rem; border-radius:60px; font-size:0.78rem; font-weight:500; margin-top:0.8rem; backdrop-filter:blur(10px); border:1px solid transparent; }
+    .status-msg.show { display:flex; }
+    .status-msg.info { background:rgba(26,107,255,0.06); color:var(--accent); border-color:rgba(26,107,255,0.08); }
+    .status-msg.error { background:rgba(209,69,75,0.06); color:var(--danger); border-color:rgba(209,69,75,0.06); }
+    .drop-zone { border:1.5px dashed var(--border-light); border-radius:34px; padding:2.6rem 1.2rem; text-align:center; cursor:pointer; transition:0.25s; background:rgba(255,255,255,0.04); }
+    .drop-zone:hover, .drop-zone.drag-over { border-color:var(--accent); background:rgba(26,107,255,0.04); }
+    .drop-zone input { display:none; }
+    .drop-icon { width:50px; height:50px; border-radius:20px; background:rgba(255,255,255,0.15); margin:0 auto 0.6rem; display:flex; align-items:center; justify-content:center; color:var(--accent); }
+    .drop-icon svg { width:26px; height:26px; stroke:currentColor; stroke-width:1.8; fill:none; }
+    .drop-zone h4 { font-size:0.95rem; font-weight:600; color:var(--text-primary); }
+    .drop-zone p { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+    .img-preview-wrap { position:relative; border-radius:26px; overflow:hidden; margin:0.8rem 0; display:none; aspect-ratio:4/3; background:rgba(0,0,0,0.02); border:1px solid var(--border-light); }
+    .img-preview-wrap img { width:100%; height:100%; object-fit:contain; }
+    .img-clear { position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:60px; background:rgba(0,0,0,0.30); backdrop-filter:blur(10px); border:none; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .img-clear svg { width:16px; height:16px; stroke:currentColor; stroke-width:2.2; }
+    .result-card { margin-top:1.8rem; background:var(--card-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:1px solid var(--glass-border); border-radius:2.4rem; padding:1.5rem 1.8rem 1.3rem; box-shadow:var(--glass-shadow); display:none; }
+    .result-card.show { display:block; animation:fadeSlide 0.5s ease; }
+    @keyframes fadeSlide { 0%{opacity:0;transform:translateY(16px);} 100%{opacity:1;transform:translateY(0);} }
+    .result-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.6rem; margin-bottom:1.2rem; }
+    .result-title { display:flex; align-items:center; gap:0.7rem; }
+    .result-icon { width:44px; height:44px; border-radius:18px; background:var(--success-bg); display:flex; align-items:center; justify-content:center; color:var(--success); }
+    .result-icon svg { width:24px; height:24px; stroke:currentColor; stroke-width:2; fill:none; }
+    .result-name { font-size:1.1rem; font-weight:800; color:var(--text-primary); }
+    .result-label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); }
+    .cred-grid { display:grid; gap:0.5rem; }
+    .cred-item { display:flex; align-items:center; justify-content:space-between; padding:0.7rem 1.1rem; border-radius:20px; background:rgba(255,255,255,0.06); border:1px solid var(--border-light); }
+    .cred-left { min-width:0; flex:1; }
+    .cred-key { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); }
+    .cred-val { font-size:0.9rem; font-weight:700; color:var(--text-primary); word-break:break-all; }
+    .cred-val.blur { filter:blur(7px); transition:filter 0.3s ease; user-select:none; }
+    .cred-val.blur:hover { filter:blur(0); }
+    .cred-right { display:flex; gap:0.3rem; flex-shrink:0; }
+    .badge { font-size:0.6rem; font-weight:600; padding:0.25rem 0.9rem; border-radius:60px; background:rgba(255,255,255,0.10); color:var(--text-secondary); border:1px solid var(--border-light); }
+    .badge-wpa { background:rgba(26,107,255,0.12); color:var(--accent); border-color:rgba(26,107,255,0.08); }
+    .badge-wep { background:rgba(209,69,75,0.08); color:var(--danger); border-color:rgba(209,69,75,0.06); }
+    .badge-open { background:rgba(15,139,94,0.10); color:var(--success); border-color:rgba(15,139,94,0.06); }
+    .raw-card { margin-top:1.2rem; background:var(--card-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:1px solid var(--glass-border); border-radius:2rem; padding:1rem 1.4rem; display:none; }
+    .raw-card.show { display:block; }
+    .raw-head { display:flex; align-items:center; gap:0.5rem; color:var(--text-muted); font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.3rem; }
+    .raw-text { font-family:'Menlo','Courier New',monospace; font-size:0.7rem; color:var(--text-secondary); background:rgba(0,0,0,0.02); padding:0.7rem 1.1rem; border-radius:20px; word-break:break-all; border:1px solid var(--border-light); line-height:1.7; }
+    .empty-state { text-align:center; padding:2.2rem 0.5rem; color:var(--text-muted); display:block; }
+    .empty-state.hide { display:none; }
+    .empty-state svg { width:52px; height:52px; stroke:var(--text-muted); stroke-width:1.4; opacity:0.25; }
+    .empty-state h5 { font-size:1rem; font-weight:700; color:var(--text-secondary); margin-top:0.4rem; }
+    .empty-state p { font-size:0.8rem; opacity:0.6; }
+    .footer { margin-top:2rem; padding-top:1.2rem; border-top:1px solid var(--border-light); text-align:center; font-size:0.7rem; color:var(--footer-text); opacity:0.7; }
+    .footer a { color:var(--accent); text-decoration:none; font-weight:600; }
+    .footer .sep { margin:0 0.4rem; opacity:0.3; }
+    .toast-wrap { position:fixed; bottom:2.8rem; left:50%; transform:translateX(-50%); z-index:999; display:flex; flex-direction:column; align-items:center; gap:0.5rem; pointer-events:none; }
+    .toast { pointer-events:auto; background:rgba(8,18,40,0.75); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); color:white; padding:0.7rem 1.8rem; border-radius:60px; font-size:0.8rem; font-weight:500; border:1px solid rgba(255,255,255,0.05); animation:toastIn 0.35s ease both; }
+    [data-theme="dark"] .toast { background:rgba(200,215,250,0.08); }
+    @keyframes toastIn { 0%{opacity:0;transform:scale(0.92) translateY(16px);} 100%{opacity:1;transform:scale(1) translateY(0);} }
+    @media (max-width:480px) { .btn{font-size:0.7rem;padding:0.5rem 0.9rem;} .cred-item{padding:0.5rem 0.7rem;} .result-card{padding:1rem 1.1rem 0.8rem;} }
+
+    /* History */
+    .history-section { margin-top:1.6rem; }
+    .history-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.7rem; }
+    .history-title { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); display:flex; align-items:center; gap:0.4rem; }
+    .history-title svg { width:13px; height:13px; stroke:currentColor; stroke-width:2; fill:none; }
+    .btn-clear-history { background:rgba(209,69,75,0.08); color:var(--danger); border:1px solid rgba(209,69,75,0.10); border-radius:60px; font-family:'Inter',sans-serif; font-weight:600; font-size:0.65rem; padding:0.25rem 0.9rem; cursor:pointer; transition:0.2s; }
+    .btn-clear-history:hover { background:rgba(209,69,75,0.16); }
+    .history-list { display:flex; flex-direction:column; gap:0.4rem; }
+    .history-item { display:flex; align-items:center; justify-content:space-between; gap:0.6rem; padding:0.6rem 1rem; border-radius:18px; background:rgba(255,255,255,0.06); border:1px solid var(--border-light); cursor:pointer; transition:0.2s; }
+    .history-item:hover { background:rgba(255,255,255,0.12); border-color:var(--accent); }
+    .history-left { min-width:0; flex:1; }
+    .history-ssid { font-size:0.82rem; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .history-meta { font-size:0.62rem; color:var(--text-muted); margin-top:0.1rem; }
+    .history-badge { font-size:0.55rem; font-weight:600; padding:0.2rem 0.7rem; border-radius:60px; background:rgba(26,107,255,0.10); color:var(--accent); border:1px solid rgba(26,107,255,0.08); flex-shrink:0; }
+    .history-empty { text-align:center; font-size:0.75rem; color:var(--text-muted); padding:1rem 0; opacity:0.6; }
+  </style>
+</head>
+<body>
+
+<div class="glass-wrap">
+  <div class="glass-header">
+    <a href="#" class="brand" aria-label="home">
+      <span class="brand-icon"><svg viewBox="0 0 24 24"><path d="M1.5 9.5C5.5 5.5 10.5 3.5 12 3.5s6.5 2 10.5 6"/><path d="M5.5 13.5c1.9-1.9 4-2.9 6.5-2.9s4.6 1 6.5 2.9"/><path d="M9.5 17.5c.7-.7 1.6-1 2.5-1s1.8.3 2.5 1"/><circle cx="12" cy="21" r="1.5"/></svg></span>
+      <span class="logo-text">QR<span class="accent">Scan</span></span>
+    </a>
+    <button class="theme-toggle" id="themeToggle" aria-label="switch theme">
+      <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+    </button>
+  </div>
+
+  <div class="hero-center">
+    <div class="headline">Scan &amp; connect <em>instantly</em></div>
+    <div class="sub">Point your camera or upload an image</div>
+  </div>
+
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" id="tabCamera" role="tab" onclick="switchTab('camera')">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera
+    </button>
+    <button class="tab-btn" id="tabUpload" role="tab" onclick="switchTab('upload')">
+      <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Upload
+    </button>
+  </div>
+
+  <div id="panel-camera" class="panel active">
+    <div class="viewfinder" id="viewfinderWrap">
+      <div id="qr-video"></div>
+      <div class="vf-overlay">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="scan-line" id="scanLine"></div>
+      </div>
+      <div class="vf-placeholder" id="vfPlaceholder">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/></svg>
+        <p>camera preview</p>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" id="btnStart" onclick="startCamera()">Start camera</button>
+      <button class="btn btn-danger" id="btnStop" onclick="stopCamera()" style="display:none">Stop</button>
+    </div>
+    <div class="status-msg" id="camStatus"><span id="camStatusText"></span></div>
+  </div>
+
+  <div id="panel-upload" class="panel">
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+      <div class="drop-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+      <h4>Drop image here</h4>
+      <p>or browse — PNG, JPG, WebP</p>
+    </div>
+    <div class="img-preview-wrap" id="imgPreviewWrap">
+      <img id="imgPreview" src="" alt="preview">
+      <button class="img-clear" onclick="clearImage()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <button class="btn btn-primary" id="btnScanImg" onclick="scanImage()" style="display:none; width:100%;">Scan QR</button>
+    <div class="status-msg" id="uploadStatus"><span id="uploadStatusText"></span></div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/></svg>
+    <h5>No QR scanned yet</h5>
+    <p>Use camera or upload an image</p>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-head">
+      <div class="result-title">
+        <div class="result-icon"><svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>
+        <div><div class="result-label">WiFi credentials</div><div class="result-name" id="resultNetworkName">Network</div></div>
+      </div>
+      <button class="btn btn-success-soft" onclick="copyAll()" style="font-size:0.7rem;padding:0.3rem 1rem;">Copy all</button>
+    </div>
+    <div class="cred-grid">
+      <div class="cred-item">
+        <div class="cred-left"><div class="cred-key">SSID</div><div class="cred-val" id="credSSID">—</div></div>
+        <div class="cred-right"><button class="btn btn-soft" onclick="copyField('credSSID','SSID')" style="padding:0.2rem 0.8rem;font-size:0.6rem;">copy</button></div>
+      </div>
+      <div class="cred-item" id="passwordRow">
+        <div class="cred-left"><div class="cred-key">password · hover to reveal</div><div class="cred-val blur" id="credPassword">—</div></div>
+        <div class="cred-right">
+          <button class="btn btn-soft" onclick="togglePassword()" style="padding:0.2rem 0.6rem;font-size:0.6rem;" id="togglePwBtn">show</button>
+          <button class="btn btn-soft" onclick="copyField('credPassword','password')" style="padding:0.2rem 0.8rem;font-size:0.6rem;">copy</button>
+        </div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-left"><div class="cred-key">security</div><div class="cred-val" id="credSecurity">—</div></div>
+        <div class="cred-right" id="securityBadge"></div>
+      </div>
+      <div class="cred-item">
+        <div class="cred-left"><div class="cred-key">hidden</div><div class="cred-val" id="credHidden">—</div></div>
+        <div class="cred-right" id="hiddenBadge"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="raw-card" id="rawCard">
+    <div class="raw-head">
+      <svg viewBox="0 0 24 24" width="14" height="14"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> raw data
+    </div>
+    <div class="raw-text" id="rawText">—</div>
+  </div>
+
+  <!-- History Section -->
+  <div class="history-section" id="historySection" style="display:none;">
+    <div class="history-head">
+      <div class="history-title">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Recently Scanned
+      </div>
+      <button class="btn-clear-history" onclick="clearHistory()">Clear all</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <div class="footer">
+    <span>&copy; 2026 QRScan</span><span class="sep">•</span>
+    <span>All rights reserved</span><span class="sep">•</span>
+    <a href="#" onclick="event.preventDefault()">Privacy</a>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(function() {
+  // Theme init
+  const saved = localStorage.getItem('qrscan-theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+    localStorage.setItem('qrscan-theme', dark ? 'light' : 'dark');
+  });
+
+  let html5QrCode = null;
+  let cameraRunning = false;
+  let uploadedFile = null;
+  let pwVisible = false;
+
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    if (tab !== 'camera' && cameraRunning) stopCamera();
+  };
+
+  function setStatus(id, type, msg) {
+    const el = document.getElementById(id);
+    el.className = 'status-msg show ' + type;
+    el.querySelector('span').textContent = msg;
+  }
+  function clearStatus(id) {
+    document.getElementById(id).className = 'status-msg';
+  }
+
+  window.startCamera = function() {
+    setStatus('camStatus', 'info', 'Requesting camera…');
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode('qr-video', { verbose: false });
+    }
+    const config = { fps: 12, qrbox: { width: 200, height: 200 }, aspectRatio: 1.0 };
+    html5QrCode.start({ facingMode: 'environment' }, config,
+      (decoded) => { onQRSuccess(decoded); },
+      () => {}
+    ).then(() => {
+      cameraRunning = true;
+      document.getElementById('vfPlaceholder').style.display = 'none';
+      document.getElementById('scanLine').style.display = 'block';
+      document.getElementById('btnStart').style.display = 'none';
+      document.getElementById('btnStop').style.display = 'inline-flex';
+      setStatus('camStatus', 'info', 'Scanning for WiFi QR…');
+    }).catch(() => {
+      setStatus('camStatus', 'error', 'Camera access denied.');
+    });
+  };
+
+  window.stopCamera = function() {
+    if (html5QrCode && cameraRunning) {
+      html5QrCode.stop().then(() => {
+        cameraRunning = false;
+        document.getElementById('vfPlaceholder').style.display = 'flex';
+        document.getElementById('scanLine').style.display = 'none';
+        document.getElementById('btnStart').style.display = 'inline-flex';
+        document.getElementById('btnStop').style.display = 'none';
+        clearStatus('camStatus');
+      }).catch(() => {});
+    }
+  };
+
+  window.handleFileSelect = function(e) {
+    const file = e.target.files[0];
+    if (file) loadImageFile(file);
+  };
+
+  const dropZone = document.getElementById('dropZone');
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadImageFile(file);
+  });
+
+  function loadImageFile(file) {
+    uploadedFile = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      document.getElementById('imgPreview').src = ev.target.result;
+      document.getElementById('imgPreviewWrap').style.display = 'block';
+      document.getElementById('btnScanImg').style.display = 'inline-flex';
+      clearStatus('uploadStatus');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  window.clearImage = function() {
+    uploadedFile = null;
+    document.getElementById('imgPreview').src = '';
+    document.getElementById('imgPreviewWrap').style.display = 'none';
+    document.getElementById('btnScanImg').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    clearStatus('uploadStatus');
+  };
+
+  // jsQR use karo image scanning ke liye — kaafi zyada reliable hai
+  window.scanImage = async function() {
+    if (!uploadedFile) return;
+    const btn = document.getElementById('btnScanImg');
+    btn.disabled = true;
+    btn.textContent = 'scanning…';
+    setStatus('uploadStatus', 'info', 'Processing image…');
+
+    try {
+      // jsQR load karo agar nahi hai
+      if (typeof jsQR === 'undefined') {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+
+      const imgEl = document.getElementById('imgPreview');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Original resolution pe scan
+      canvas.width  = imgEl.naturalWidth;
+      canvas.height = imgEl.naturalHeight;
+      ctx.drawImage(imgEl, 0, 0);
+      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert'
+      });
+
+      // Fail ho toh 2x upscale karke retry
+      if (!code) {
+        canvas.width  = imgEl.naturalWidth  * 2;
+        canvas.height = imgEl.naturalHeight * 2;
+        ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: 'attemptBoth'
+        });
+      }
+
+      if (code && code.data) {
+        onQRSuccess(code.data);
+        clearStatus('uploadStatus');
+      } else {
+        setStatus('uploadStatus', 'error', 'No QR code found. Try a clearer image.');
+      }
+    } catch (err) {
+      console.warn('Scan error:', err);
+      setStatus('uploadStatus', 'error', 'Scan failed. Try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Scan QR';
+    }
+  };
+
+  function parseQRData(raw) {
+    const out = { isWifi: false, ssid: '', password: '', security: '', hidden: false, type: 'Other' };
+    if (!/^WIFI:/i.test(raw)) {
+      if (/^https?:\/\//i.test(raw)) out.type = 'URL';
+      else if (/^mailto:/i.test(raw)) out.type = 'Email';
+      else if (/^BEGIN:VCARD/i.test(raw)) out.type = 'vCard';
+      else out.type = 'Text';
+      return out;
+    }
+    out.isWifi = true;
+    out.type = 'WiFi';
+    const extract = (key) => {
+      const re = new RegExp('[;:]' + key + ':([^;]*)', 'i');
+      const m = raw.match(re);
+      if (!m) return '';
+      return m[1].trim();
+    };
+    out.ssid     = extract('S');
+    out.password = extract('P');
+    out.security = (extract('T') || 'nopass').toUpperCase();
+    if (out.security === 'NOPASS') out.security = 'Open';
+    const h = extract('H');
+    out.hidden = (h === 'true' || h === '1');
+    return out;
+  }
+
+  function onQRSuccess(text) {
+    const vf = document.getElementById('viewfinderWrap');
+    vf.classList.add('detected');
+    setTimeout(() => vf.classList.remove('detected'), 1800);
+
+    const data = parseQRData(text);
+    document.getElementById('emptyState').classList.add('hide');
+
+    // Raw data card
+    document.getElementById('rawCard').classList.add('show');
+    document.getElementById('rawText').textContent = text;
+
+    // Result card
+    document.getElementById('resultCard').classList.add('show');
+
+    if (data.isWifi) {
+      document.getElementById('resultNetworkName').textContent = data.ssid || 'Unknown';
+      document.getElementById('credSSID').textContent = data.ssid || '—';
+      document.getElementById('credPassword').textContent = data.password || '(no password)';
+      document.getElementById('credSecurity').textContent = data.security || '—';
+      document.getElementById('credHidden').textContent = data.hidden ? 'Yes' : 'No';
+      document.getElementById('passwordRow').style.opacity = data.password ? '1' : '0.5';
+
+      const pwEl = document.getElementById('credPassword');
+      if (data.password) {
+        pwEl.classList.add('blur');
+        pwVisible = false;
+        document.getElementById('togglePwBtn').textContent = 'show';
+      } else {
+        pwEl.classList.remove('blur');
+      }
+
+      const sec = data.security.toUpperCase();
+      let cls = 'badge';
+      if (sec.includes('WPA')) cls += ' badge-wpa';
+      else if (sec.includes('WEP')) cls += ' badge-wep';
+      else if (sec === 'OPEN') cls += ' badge-open';
+      document.getElementById('securityBadge').innerHTML = '<span class="' + cls + '">' + data.security + '</span>';
+      document.getElementById('hiddenBadge').innerHTML = data.hidden
+        ? '<span class="badge">hidden</span>'
+        : '<span class="badge" style="opacity:0.5;">visible</span>';
+    } else {
+      document.getElementById('resultNetworkName').textContent = data.type;
+      document.getElementById('credSSID').textContent = text.slice(0, 60) + (text.length > 60 ? '…' : '');
+      document.getElementById('credPassword').textContent = '—';
+      document.getElementById('credSecurity').textContent = '—';
+      document.getElementById('credHidden').textContent = '—';
+      document.getElementById('securityBadge').innerHTML = '';
+      document.getElementById('hiddenBadge').innerHTML = '';
+      document.getElementById('passwordRow').style.opacity = '0.5';
+    }
+
+    addToHistory(data, text);
+    if (cameraRunning) stopCamera();
+    showToast('QR scanned successfully');
+  }
+
+  window.copyField = function(elId, label) {
+    const text = document.getElementById(elId).textContent.trim();
+    if (!text || text === '—' || text === '(no password)') { showToast('Nothing to copy'); return; }
+    navigator.clipboard.writeText(text)
+      .then(() => showToast(label + ' copied'))
+      .catch(() => fallbackCopy(text, label));
+  };
+
+  window.copyAll = function() {
+    const ssid = document.getElementById('credSSID').textContent.trim();
+    const pass = document.getElementById('credPassword').textContent.trim();
+    const sec  = document.getElementById('credSecurity').textContent.trim();
+    const lines = 'SSID: ' + ssid + '\nPassword: ' + pass + '\nSecurity: ' + sec;
+    navigator.clipboard.writeText(lines)
+      .then(() => showToast('All copied'))
+      .catch(() => fallbackCopy(lines, 'credentials'));
+  };
+
+  function fallbackCopy(text, label) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast(label + ' copied'); } catch { showToast('Copy failed'); }
+    document.body.removeChild(ta);
+  }
+
+  window.togglePassword = function() {
+    const el = document.getElementById('credPassword');
+    pwVisible = !pwVisible;
+    if (pwVisible) {
+      el.classList.remove('blur');
+      document.getElementById('togglePwBtn').textContent = 'hide';
+    } else {
+      el.classList.add('blur');
+      document.getElementById('togglePwBtn').textContent = 'show';
+    }
+  };
+
+  // ── History ──────────────────────────────────────────
+  const HISTORY_KEY = 'qrscan-history';
+  const MAX_HISTORY = 10;
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveHistory(arr) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+  }
+
+  function addToHistory(data, rawText) {
+    const arr = loadHistory();
+    // Duplicate SSID check — same network dobara add na ho
+    const idx = arr.findIndex(h => h.raw === rawText);
+    if (idx !== -1) arr.splice(idx, 1);
+    arr.unshift({
+      ssid: data.isWifi ? (data.ssid || 'Unknown') : rawText.slice(0, 30),
+      security: data.isWifi ? data.security : '',
+      type: data.type,
+      time: Date.now(),
+      raw: rawText
+    });
+    if (arr.length > MAX_HISTORY) arr.length = MAX_HISTORY;
+    saveHistory(arr);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const arr = loadHistory();
+    const section = document.getElementById('historySection');
+    const list    = document.getElementById('historyList');
+
+    if (!arr.length) {
+      section.style.display = 'none';
+      return;
+    }
+    section.style.display = 'block';
+    list.innerHTML = arr.map((h, i) => {
+      const ago = timeAgo(h.time);
+      const label = h.type === 'WiFi' ? (h.security || 'WiFi') : h.type;
+      return '<div class="history-item" onclick="restoreHistory(' + i + ')">' +
+        '<div class="history-left">' +
+          '<div class="history-ssid">' + escHtml(h.ssid) + '</div>' +
+          '<div class="history-meta">' + ago + '</div>' +
+        '</div>' +
+        '<span class="history-badge">' + escHtml(label) + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function timeAgo(ts) {
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60)  return 'just now';
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return Math.floor(diff/86400) + 'd ago';
+  }
+
+  window.clearHistory = function() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+    showToast('History cleared');
+  };
+
+  window.restoreHistory = function(i) {
+    const arr = loadHistory();
+    if (!arr[i]) return;
+    onQRSuccess(arr[i].raw);
+    showToast('Loaded from history');
+  };
+
+  // Page load pe history render karo
+  renderHistory();
+  // ─────────────────────────────────────────────────────
+
+  function showToast(msg) {
+    const wrap = document.getElementById('toastWrap');
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'scale(0.96)';
+      setTimeout(() => t.remove(), 300);
+    }, 2400);
+  }
+
+  document.addEventListener('dragover', e => e.preventDefault());
+  document.addEventListener('drop', e => e.preventDefault());
+})();
+</script>
+</body>
+</html>
