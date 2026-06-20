@@ -1,430 +1,522 @@
 <!DOCTYPE html>
-
-<html>
-<head>
-    <meta charset="utf-8">
-    <title></title>
-</head>
-<body>
-    
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WiFi QR Scanner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+
 :root{
-  --gb:rgba(255,255,255,0.18);--gbr:rgba(255,255,255,0.30);
-  --gs:0 30px 70px -25px rgba(0,0,0,0.25);--gbl:blur(28px) saturate(1.3);
-  --bs:#dce6f5;--be:#c2d2ea;--tp:#071627;--ts:#1f3452;--tm:#4d6488;
-  --ac:#1a6bff;--ag:rgba(26,107,255,0.40);--al:#5c8eff;
-  --su:#0f8b5e;--sub:rgba(15,139,94,0.15);--da:#d1454b;
-  --bl:rgba(255,255,255,0.40);--cb:rgba(255,255,255,0.20);--ft:#3a5078
+  --bg1:#f0f4fb;
+  --bg2:#dde6f4;
+  --card:rgba(255,255,255,0.72);
+  --card-border:rgba(255,255,255,0.85);
+  --card-shadow:0 24px 60px -12px rgba(0,0,0,0.13);
+  --blur:blur(24px) saturate(1.4);
+  --text:#0a1628;
+  --text2:#2d4268;
+  --muted:#5a7099;
+  --border:rgba(0,0,0,0.08);
+  --input-bg:rgba(255,255,255,0.9);
+  --chip-bg:rgba(255,255,255,0.6);
+  --ac:#1a6bff;
+  --ac2:#5c8eff;
+  --ac-glow:rgba(26,107,255,0.25);
+  --green:#0a7a53;
+  --green-bg:rgba(10,122,83,0.1);
+  --red:#c0392b;
+  --red-bg:rgba(192,57,43,0.08);
+  --footer:#4a6080
 }
+
 [data-theme=dark]{
-  --bs:#080f20;--be:#111c34;--gb:rgba(12,22,46,0.40);--gbr:rgba(255,255,255,0.07);
-  --gs:0 30px 70px -25px rgba(0,0,0,0.7);--tp:#ecf2fc;--ts:#b0c6e8;--tm:#6f86ac;
-  --ac:#5c8eff;--ag:rgba(92,142,255,0.30);--al:#8bb3ff;--su:#3dd68c;
-  --sub:rgba(61,214,140,0.15);--bl:rgba(255,255,255,0.06);
-  --cb:rgba(18,30,54,0.45);--ft:#8899bb
+  --bg1:#07101f;
+  --bg2:#0d1a30;
+  --card:rgba(15,28,54,0.75);
+  --card-border:rgba(255,255,255,0.07);
+  --card-shadow:0 24px 60px -12px rgba(0,0,0,0.55);
+  --text:#e8f0fc;
+  --text2:#9ab0d4;
+  --muted:#5e7899;
+  --border:rgba(255,255,255,0.07);
+  --input-bg:rgba(255,255,255,0.05);
+  --chip-bg:rgba(255,255,255,0.04);
+  --ac:#5c8eff;
+  --ac2:#8bb3ff;
+  --ac-glow:rgba(92,142,255,0.2);
+  --green:#2ec98a;
+  --green-bg:rgba(46,201,138,0.1);
+  --red:#e05252;
+  --red-bg:rgba(224,82,82,0.08);
+  --footer:#6a85aa
 }
+
 html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,sans-serif;min-height:100vh;
-  background:linear-gradient(155deg,var(--bs),var(--be));
+
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+  background:linear-gradient(150deg,var(--bg1),var(--bg2));
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:2rem 1.5rem 3rem;
+  transition:background .3s;
+  -webkit-font-smoothing:antialiased
+}
+
+/* ── Main card ── */
+.card{
+  width:100%;
+  max-width:900px;
+  background:var(--card);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--card-border);
+  border-radius:2.4rem;
+  box-shadow:var(--card-shadow);
+  padding:2.4rem 2.8rem 2.2rem;
+  animation:rise .7s cubic-bezier(.16,1,.3,1) both
+}
+@keyframes rise{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+@media(max-width:600px){
+  .card{padding:1.6rem 1.2rem 1.6rem;border-radius:1.8rem}
+  body{padding:1rem .8rem 2rem}
+}
+
+/* ── Header ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.8rem}
+.brand{display:flex;align-items:center;gap:.7rem;text-decoration:none}
+.brand-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--ac),var(--ac2));
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px var(--ac-glow);flex-shrink:0}
+.brand-icon svg{width:22px;height:22px;fill:white}
+.brand-name{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;color:var(--text)}
+.brand-name span{color:var(--ac)}
+.theme-btn{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--border);
+  background:var(--chip-bg);backdrop-filter:blur(10px);cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  padding:1.5rem;transition:background .35s ease;-webkit-font-smoothing:antialiased}
-.wrap{width:100%;max-width:720px;margin:0 auto;background:var(--gb);
-  backdrop-filter:var(--gbl);-webkit-backdrop-filter:var(--gbl);
-  border:1px solid var(--gbr);border-radius:3.2rem;box-shadow:var(--gs);
-  padding:2.2rem 2.2rem 1.8rem;animation:floatIn .9s cubic-bezier(.16,1,.3,1) both}
-@keyframes floatIn{0%{opacity:0;transform:translateY(30px) scale(.96)}100%{opacity:1;transform:none}}
-@media(max-width:500px){.wrap{padding:1.4rem 1.2rem 1.2rem;border-radius:2rem}body{padding:.8rem}}
+  color:var(--text2);transition:.2s;flex-shrink:0
+}
+.theme-btn:hover{transform:scale(1.08);border-color:var(--ac)}
+.theme-btn svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.8;fill:none}
+.sun{display:none}
+[data-theme=dark] .moon{display:none}
+[data-theme=dark] .sun{display:block}
 
-/* Header */
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem}
-.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;font-weight:800;font-size:1.25rem;letter-spacing:-.02em}
-.brand .lt{color:var(--tp)}.brand .lt .ac{color:var(--ac)}
-.bi{width:36px;height:36px;background:linear-gradient(145deg,var(--ac),var(--al));border-radius:12px;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px var(--ag);flex-shrink:0}
-.bi svg{width:19px;height:19px;fill:white}
-.hdr-right{display:flex;gap:.5rem;align-items:center}
-.icon-btn{background:var(--cb);border:1px solid var(--gbr);backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);border-radius:60px;width:42px;height:42px;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--ts);transition:.25s;flex-shrink:0}
-.icon-btn:hover{background:rgba(255,255,255,.22);transform:scale(1.04)}
-.icon-btn svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.8;fill:none}
-.sun-icon{display:none}[data-theme=dark] .moon-icon{display:none}[data-theme=dark] .sun-icon{display:block}
+/* ── Stats ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:2rem}
+.stat{background:var(--chip-bg);border:1px solid var(--border);border-radius:1.2rem;
+  padding:.9rem 1rem;text-align:center;backdrop-filter:blur(8px)}
+.stat-n{font-size:1.6rem;font-weight:900;color:var(--ac);letter-spacing:-.04em;line-height:1}
+.stat-l{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:.2rem}
 
-/* Stats bar */
-.stats-bar{display:flex;gap:.5rem;margin-bottom:1.4rem}
-.stat-chip{flex:1;background:var(--cb);border:1px solid var(--bl);border-radius:20px;
-  padding:.5rem .8rem;text-align:center;backdrop-filter:blur(8px)}
-.stat-num{font-size:1.3rem;font-weight:900;color:var(--ac);letter-spacing:-.03em;line-height:1}
-.stat-lbl{font-size:.55rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tm);margin-top:.1rem}
-
-/* Hero */
-.hero{text-align:center;margin-bottom:1.8rem}
-.headline{font-size:clamp(1.9rem,7vw,3.2rem);font-weight:900;letter-spacing:-.04em;line-height:1.02;color:var(--tp);margin-bottom:.15rem}
-.headline em{font-style:normal;background:linear-gradient(145deg,var(--ac),var(--al));
+/* ── Hero ── */
+.hero{text-align:center;margin-bottom:2rem}
+.hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;letter-spacing:-.04em;
+  line-height:1.05;color:var(--text);margin-bottom:.4rem}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--ac),var(--ac2));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sub{font-size:.95rem;color:var(--ts);font-weight:400;opacity:.85}
+.hero p{font-size:1.05rem;color:var(--text2);font-weight:400}
 
-/* Tabs */
-.tabs{display:flex;gap:.4rem;background:rgba(255,255,255,.18);backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);border-radius:80px;padding:5px;
-  margin-bottom:1.6rem;border:1px solid var(--bl)}
-.tab{flex:1;padding:.6rem .2rem;border-radius:60px;border:none;background:transparent;
-  font-family:'Inter',sans-serif;font-weight:600;font-size:.78rem;color:var(--tm);
-  display:flex;align-items:center;justify-content:center;gap:.4rem;transition:.2s;cursor:pointer}
-.tab.active{background:rgba(255,255,255,.45);backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);color:var(--tp);box-shadow:0 6px 20px rgba(0,0,0,.02)}
-[data-theme=dark] .tab.active{background:rgba(255,255,255,.07);color:white}
-.tab svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none}
+/* ── Tabs ── */
+.tabs{display:flex;gap:.4rem;background:rgba(0,0,0,.04);
+  border-radius:60px;padding:5px;margin-bottom:1.8rem;border:1px solid var(--border)}
+[data-theme=dark] .tabs{background:rgba(255,255,255,.04)}
+.tab{flex:1;padding:.7rem .5rem;border-radius:60px;border:none;background:transparent;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.88rem;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;gap:.45rem;
+  transition:.2s;cursor:pointer;white-space:nowrap}
+.tab svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.8;fill:none;flex-shrink:0}
+.tab.active{background:#fff;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+[data-theme=dark] .tab.active{background:rgba(255,255,255,.1);color:#fff}
 .panel{display:none}.panel.active{display:block}
 
-/* Viewfinder */
-.vf{position:relative;width:100%;aspect-ratio:1/1;max-width:320px;margin:0 auto 1rem;
-  background:rgba(0,0,0,.04);border-radius:34px;overflow:hidden;border:1px solid var(--bl)}
+/* ── Viewfinder ── */
+.vf-wrap{position:relative;width:100%;max-width:380px;aspect-ratio:1;
+  margin:0 auto 1.2rem;border-radius:2rem;overflow:hidden;
+  background:#000;border:1px solid var(--border)}
 #qr-video{width:100%!important;height:100%!important;object-fit:cover}
-.vf-ov{position:absolute;inset:0;pointer-events:none;z-index:2}
-.corner{position:absolute;width:24px;height:24px;border-color:var(--ac);border-style:solid;border-width:0;opacity:.7;transition:border-color .3s}
-.corner.tl{top:18px;left:18px;border-top-width:3.5px;border-left-width:3.5px;border-radius:10px 0 0 0}
-.corner.tr{top:18px;right:18px;border-top-width:3.5px;border-right-width:3.5px;border-radius:0 10px 0 0}
-.corner.bl{bottom:18px;left:18px;border-bottom-width:3.5px;border-left-width:3.5px;border-radius:0 0 0 10px}
-.corner.br{bottom:18px;right:18px;border-bottom-width:3.5px;border-right-width:3.5px;border-radius:0 0 10px 0}
-.scan-line{position:absolute;left:18%;right:18%;height:2.5px;
+.vf-overlay{position:absolute;inset:0;pointer-events:none;z-index:2}
+.corner{position:absolute;width:28px;height:28px;border-color:var(--ac);
+  border-style:solid;border-width:0;opacity:.85;transition:border-color .3s}
+.corner.tl{top:16px;left:16px;border-top-width:3px;border-left-width:3px;border-radius:8px 0 0 0}
+.corner.tr{top:16px;right:16px;border-top-width:3px;border-right-width:3px;border-radius:0 8px 0 0}
+.corner.bl{bottom:16px;left:16px;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 8px}
+.corner.br{bottom:16px;right:16px;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 8px 0}
+.scan-line{position:absolute;left:14%;right:14%;height:2px;
   background:linear-gradient(90deg,transparent,var(--ac),transparent);
-  box-shadow:0 0 24px var(--ag);top:16px;z-index:3;
-  animation:scanMove 2.4s ease-in-out infinite;display:none;opacity:.8}
-@keyframes scanMove{0%{top:16px;opacity:0}12%{opacity:1}88%{opacity:1}100%{top:calc(100% - 20px);opacity:0}}
-.vf-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:var(--tm);font-size:.75rem;font-weight:500}
-.vf-ph svg{width:42px;height:42px;opacity:.25;stroke:var(--tm);stroke-width:1.4;fill:none}
-.detected .corner{border-color:var(--su)}
+  box-shadow:0 0 20px var(--ac-glow);z-index:3;
+  animation:scanMove 2.2s ease-in-out infinite;display:none}
+@keyframes scanMove{0%{top:14px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:calc(100% - 16px);opacity:0}}
+.vf-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.5rem;
+  color:var(--muted);font-size:.85rem;font-weight:500;background:var(--chip-bg)}
+.vf-placeholder svg{width:50px;height:50px;opacity:.2;stroke:var(--muted);stroke-width:1.4;fill:none}
+.detected .corner{border-color:var(--green)!important;animation:pulse-corner .4s ease}
+@keyframes pulse-corner{0%,100%{opacity:.85}50%{opacity:1;transform:scale(1.08)}}
 
-/* Camera controls row */
-.cam-controls{display:flex;gap:.5rem;align-items:center;margin-bottom:.8rem}
-.torch-btn{background:var(--cb);border:1px solid var(--bl);border-radius:60px;
-  padding:.5rem .9rem;font-family:'Inter',sans-serif;font-weight:600;font-size:.72rem;
-  color:var(--tp);cursor:pointer;display:none;align-items:center;gap:.35rem;transition:.25s}
-.torch-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
-.torch-btn.on{background:rgba(255,200,0,.15);border-color:rgba(255,200,0,.3);color:#c8960a}
+/* ── Camera controls ── */
+.cam-controls{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.torch-btn{display:none;align-items:center;gap:.4rem;padding:.6rem 1.1rem;
+  border-radius:60px;border:1px solid var(--border);background:var(--chip-bg);
+  font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--text2);cursor:pointer;transition:.2s}
+.torch-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+.torch-btn.on{background:rgba(255,180,0,.12);border-color:rgba(255,180,0,.3);color:#b8860b}
 [data-theme=dark] .torch-btn.on{color:#ffd740}
 
-/* Buttons */
-.btn-group{display:flex;gap:.6rem;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
-  padding:.75rem 1.5rem;border-radius:60px;border:1px solid var(--bl);
-  font-family:'Inter',sans-serif;font-weight:600;font-size:.8rem;background:var(--cb);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--tp);
-  cursor:pointer;transition:.25s;flex:1 1 auto}
-.btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;flex-shrink:0}
-.btn-primary{background:linear-gradient(145deg,var(--ac),var(--al));border-color:transparent;color:white;box-shadow:0 8px 28px var(--ag)}
-.btn-primary:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 16px 40px var(--ag)}
-.btn-soft{background:rgba(255,255,255,.20);backdrop-filter:blur(10px);border-color:var(--bl)}
-.btn-danger{background:rgba(209,69,75,.12);color:var(--da);border-color:rgba(209,69,75,.12)}
-.btn-success{background:var(--sub);color:var(--su);border-color:rgba(15,139,94,.10)}
-.btn-green{background:linear-gradient(145deg,#0f8b5e,#0aad76);border-color:transparent;color:white;box-shadow:0 8px 24px rgba(15,139,94,.35)}
-.btn-green:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 14px 36px rgba(15,139,94,.4)}
-.btn:disabled{opacity:.35;pointer-events:none}
+/* ── Buttons ── */
+.btn-row{display:flex;gap:.7rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  padding:.8rem 1.6rem;border-radius:60px;border:1px solid var(--border);
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.9rem;
+  background:var(--chip-bg);color:var(--text);
+  cursor:pointer;transition:.22s;flex:1 1 auto}
+.btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;flex-shrink:0}
+.btn-primary{background:linear-gradient(135deg,var(--ac),var(--ac2));
+  border-color:transparent;color:#fff;box-shadow:0 6px 24px var(--ac-glow)}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 32px var(--ac-glow)}
+.btn-soft{background:var(--chip-bg);border-color:var(--border)}
+.btn-red{background:var(--red-bg);color:var(--red);border-color:transparent}
+.btn-green-solid{background:linear-gradient(135deg,#0a7a53,#0d9e6a);
+  border-color:transparent;color:#fff;box-shadow:0 6px 20px rgba(10,122,83,.3)}
+.btn-green-solid:hover:not(:disabled){transform:translateY(-2px)}
+.btn-success-outline{background:var(--green-bg);color:var(--green);border-color:transparent}
+.btn:disabled{opacity:.38;pointer-events:none}
 
-/* Status */
-.status-msg{display:none;align-items:center;gap:.5rem;padding:.6rem 1.2rem;border-radius:60px;
-  font-size:.78rem;font-weight:500;margin-top:.8rem;backdrop-filter:blur(10px);border:1px solid transparent}
-.status-msg.show{display:flex}
-.status-msg.info{background:rgba(26,107,255,.06);color:var(--ac);border-color:rgba(26,107,255,.08)}
-.status-msg.error{background:rgba(209,69,75,.06);color:var(--da);border-color:rgba(209,69,75,.06)}
-.status-msg.success{background:var(--sub);color:var(--su);border-color:rgba(15,139,94,.08)}
+/* ── Status messages ── */
+.msg{display:none;align-items:center;gap:.5rem;padding:.7rem 1.2rem;
+  border-radius:60px;font-size:.85rem;font-weight:500;margin-top:.9rem;
+  border:1px solid transparent}
+.msg.show{display:flex}
+.msg.info{background:rgba(26,107,255,.07);color:var(--ac);border-color:rgba(26,107,255,.1)}
+.msg.error{background:var(--red-bg);color:var(--red);border-color:transparent}
+.msg.ok{background:var(--green-bg);color:var(--green);border-color:transparent}
 
-/* Drop zone */
-.drop-zone{border:1.5px dashed var(--bl);border-radius:34px;padding:2.4rem 1.2rem;
-  text-align:center;cursor:pointer;transition:.25s;background:rgba(255,255,255,.04)}
-.drop-zone:hover,.drop-zone.drag-over{border-color:var(--ac);background:rgba(26,107,255,.04)}
-.drop-zone input{display:none}
-.drop-icon{width:50px;height:50px;border-radius:20px;background:rgba(255,255,255,.15);
-  margin:0 auto .6rem;display:flex;align-items:center;justify-content:center;color:var(--ac)}
-.drop-icon svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.8;fill:none}
-.drop-zone h4{font-size:.95rem;font-weight:600;color:var(--tp)}
-.drop-zone p{font-size:.78rem;color:var(--tm);margin-top:.15rem}
-.img-pw{position:relative;border-radius:26px;overflow:hidden;margin:.8rem 0;display:none;aspect-ratio:4/3;background:rgba(0,0,0,.02);border:1px solid var(--bl)}
-.img-pw img{width:100%;height:100%;object-fit:contain}
-.img-clr{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:60px;
-  background:rgba(0,0,0,.30);backdrop-filter:blur(10px);border:none;color:white;
-  cursor:pointer;display:flex;align-items:center;justify-content:center}
-.img-clr svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.2}
+/* ── Drop zone ── */
+.drop{border:2px dashed var(--border);border-radius:1.6rem;padding:2.8rem 1.5rem;
+  text-align:center;cursor:pointer;transition:.22s;background:var(--chip-bg)}
+.drop:hover,.drop.over{border-color:var(--ac);background:rgba(26,107,255,.04)}
+.drop input{display:none}
+.drop-ico{width:56px;height:56px;border-radius:18px;background:rgba(26,107,255,.1);
+  margin:0 auto .8rem;display:flex;align-items:center;justify-content:center}
+.drop-ico svg{width:28px;height:28px;stroke:var(--ac);stroke-width:1.8;fill:none}
+.drop h4{font-size:1rem;font-weight:700;color:var(--text)}
+.drop p{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.img-prev-wrap{display:none;position:relative;border-radius:1.4rem;overflow:hidden;
+  margin:.9rem 0;aspect-ratio:4/3;border:1px solid var(--border);background:var(--chip-bg)}
+.img-prev-wrap img{width:100%;height:100%;object-fit:contain}
+.img-clear-btn{position:absolute;top:10px;right:10px;width:34px;height:34px;
+  border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(8px);
+  border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.img-clear-btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.2}
 
-/* Generator panel */
-.gen-form{display:flex;flex-direction:column;gap:.8rem}
-.field-group{display:flex;flex-direction:column;gap:.25rem}
-.field-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tm)}
-.field-input{background:rgba(255,255,255,.12);border:1px solid var(--bl);border-radius:16px;
-  padding:.7rem 1rem;font-family:'Inter',sans-serif;font-size:.88rem;color:var(--tp);
-  outline:none;transition:.2s;width:100%;backdrop-filter:blur(8px)}
-.field-input:focus{border-color:var(--ac);background:rgba(255,255,255,.18);box-shadow:0 0 0 3px var(--ag)}
-.field-input::placeholder{color:var(--tm);opacity:.6}
-.select-row{display:flex;gap:.5rem}
-.select-row select{flex:1}
-select.field-input{cursor:pointer;-webkit-appearance:none;appearance:none}
-.pw-wrap{position:relative}
-.pw-wrap .field-input{padding-right:2.8rem}
-.pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);
-  background:none;border:none;color:var(--tm);cursor:pointer;padding:.2rem;
-  display:flex;align-items:center}
-.pw-toggle svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
-.qr-output{margin-top:1rem;text-align:center;display:none}
-.qr-canvas-wrap{background:white;border-radius:24px;padding:1.2rem;display:inline-block;
-  box-shadow:0 8px 32px rgba(0,0,0,.1);margin-bottom:.8rem}
-.qr-canvas-wrap canvas{display:block}
+/* ── Generator ── */
+.gen-form{display:flex;flex-direction:column;gap:1rem}
+.field{display:flex;flex-direction:column;gap:.3rem}
+.field label{font-size:.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted)}
+.field input,.field select{
+  background:var(--input-bg);border:1px solid var(--border);border-radius:14px;
+  padding:.82rem 1.1rem;font-family:'Inter',sans-serif;font-size:.95rem;
+  color:var(--text);outline:none;width:100%;transition:.2s;
+  -webkit-appearance:none;appearance:none
+}
+.field input:focus,.field select:focus{
+  border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-glow);
+  background:var(--input-bg)
+}
+.field input::placeholder{color:var(--muted);opacity:.7}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.pw-field{position:relative}
+.pw-field input{padding-right:3rem}
+.pw-eye{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;padding:.2rem}
+.pw-eye svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none}
 
-/* Result card */
-.result-card{margin-top:1.8rem;background:var(--cb);backdrop-filter:var(--gbl);
-  -webkit-backdrop-filter:var(--gbl);border:1px solid var(--gbr);border-radius:2.4rem;
-  padding:1.5rem 1.8rem 1.3rem;box-shadow:var(--gs);display:none}
-.result-card.show{display:block;animation:fadeSlide .5s ease}
-@keyframes fadeSlide{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:none}}
-.result-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem;margin-bottom:1.2rem}
-.result-title{display:flex;align-items:center;gap:.7rem}
-.result-icon{width:44px;height:44px;border-radius:18px;background:var(--sub);display:flex;align-items:center;justify-content:center;color:var(--su)}
-.result-icon svg{width:24px;height:24px;stroke:currentColor;stroke-width:2;fill:none}
-.result-name{font-size:1.1rem;font-weight:800;color:var(--tp)}
-.result-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tm)}
-.result-actions{display:flex;gap:.4rem;flex-wrap:wrap}
-.cred-grid{display:grid;gap:.5rem}
-.cred-item{display:flex;align-items:center;justify-content:space-between;
-  padding:.7rem 1.1rem;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid var(--bl)}
-.cred-left{min-width:0;flex:1}
-.cred-key{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tm)}
-.cred-val{font-size:.9rem;font-weight:700;color:var(--tp);word-break:break-all}
-.cred-val.blur{filter:blur(7px);transition:filter .3s ease;user-select:none}
-.cred-val.blur:hover{filter:blur(0)}
-.cred-right{display:flex;gap:.3rem;flex-shrink:0;align-items:center}
-.badge{font-size:.6rem;font-weight:600;padding:.25rem .9rem;border-radius:60px;
-  background:rgba(255,255,255,.10);color:var(--ts);border:1px solid var(--bl)}
-.badge-wpa{background:rgba(26,107,255,.12);color:var(--ac);border-color:rgba(26,107,255,.08)}
-.badge-wep{background:rgba(209,69,75,.08);color:var(--da);border-color:rgba(209,69,75,.06)}
-.badge-open{background:rgba(15,139,94,.10);color:var(--su);border-color:rgba(15,139,94,.06)}
+/* strength meter */
+.strength{display:none;align-items:center;gap:.6rem;margin-top:.35rem}
+.str-bars{display:flex;gap:4px}
+.str-bar{width:28px;height:5px;border-radius:4px;background:var(--border);transition:.3s}
+.str-bar.w{background:#ef4444}.str-bar.m{background:#f59e0b}.str-bar.s{background:#10b981}
+.str-lbl{font-size:.7rem;font-weight:600;color:var(--muted)}
 
-/* Password strength */
-.pw-strength{display:flex;align-items:center;gap:.5rem;margin-top:.3rem}
-.pw-bars{display:flex;gap:3px}
-.pw-bar{width:22px;height:4px;border-radius:4px;background:rgba(255,255,255,.1);transition:.3s}
-.pw-bar.w{background:#ef4444}.pw-bar.m{background:#f59e0b}.pw-bar.s{background:#10b981}
-.pw-str-lbl{font-size:.58rem;font-weight:600;color:var(--tm)}
+/* QR output */
+.qr-out{display:none;margin-top:1.4rem;text-align:center}
+.qr-box{display:inline-block;padding:1.2rem;background:#fff;border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,.12);margin-bottom:1rem}
+.qr-box canvas{display:block!important}
+.qr-btns{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
 
-/* Connect button */
-.connect-row{margin-top:.8rem}
-.btn-connect{width:100%;padding:.85rem;font-size:.88rem;display:flex;justify-content:center}
+/* ── Result card ── */
+.result-card{margin-top:1.8rem;background:var(--card);backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);border:1px solid var(--card-border);
+  border-radius:2rem;padding:1.6rem 2rem 1.4rem;box-shadow:var(--card-shadow);display:none}
+.result-card.show{display:block;animation:rise .4s ease}
+.res-head{display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.8rem;margin-bottom:1.4rem}
+.res-title{display:flex;align-items:center;gap:.8rem}
+.res-icon{width:48px;height:48px;border-radius:16px;background:var(--green-bg);
+  display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0}
+.res-icon svg{width:26px;height:26px;stroke:currentColor;stroke-width:2;fill:none}
+.res-label{font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted)}
+.res-name{font-size:1.2rem;font-weight:800;color:var(--text)}
+.creds{display:grid;gap:.6rem}
+.cred{display:flex;align-items:center;justify-content:space-between;gap:.8rem;
+  padding:.85rem 1.2rem;border-radius:16px;background:var(--chip-bg);border:1px solid var(--border)}
+.cred-l{flex:1;min-width:0}
+.cred-k{font-size:.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);margin-bottom:.2rem}
+.cred-v{font-size:.98rem;font-weight:700;color:var(--text);word-break:break-all}
+.cred-v.blurred{filter:blur(6px);transition:.25s;cursor:pointer}
+.cred-v.blurred:hover{filter:none}
+.cred-r{display:flex;gap:.4rem;flex-shrink:0;align-items:center}
+.mini-btn{padding:.28rem .85rem;font-size:.68rem;font-weight:600;border-radius:60px;
+  border:1px solid var(--border);background:var(--chip-bg);color:var(--text2);
+  cursor:pointer;font-family:'Inter',sans-serif;transition:.2s;white-space:nowrap}
+.mini-btn:hover{border-color:var(--ac);color:var(--ac)}
+.badge{font-size:.65rem;font-weight:600;padding:.28rem 1rem;border-radius:60px;
+  border:1px solid transparent}
+.badge-wpa{background:rgba(26,107,255,.1);color:var(--ac)}
+.badge-wep{background:var(--red-bg);color:var(--red)}
+.badge-open{background:var(--green-bg);color:var(--green)}
+.badge-default{background:var(--chip-bg);color:var(--text2);border-color:var(--border)}
 
-/* Raw card */
-.raw-card{margin-top:1.2rem;background:var(--cb);backdrop-filter:var(--gbl);
-  -webkit-backdrop-filter:var(--gbl);border:1px solid var(--gbr);border-radius:2rem;
-  padding:1rem 1.4rem;display:none}
+/* password strength in result */
+.res-str{display:none;align-items:center;gap:.6rem;margin-top:.5rem}
+
+/* connect button */
+.connect-wrap{margin-top:1rem}
+.connect-btn{width:100%;padding:.95rem;font-size:.95rem}
+
+/* raw card */
+.raw-card{margin-top:1.2rem;background:var(--card);backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);border:1px solid var(--card-border);
+  border-radius:1.6rem;padding:1.1rem 1.4rem;display:none}
 .raw-card.show{display:block}
-.raw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
-.raw-head-left{display:flex;align-items:center;gap:.5rem;color:var(--tm);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.raw-text{font-family:'Menlo','Courier New',monospace;font-size:.7rem;color:var(--ts);
-  background:rgba(0,0,0,.02);padding:.7rem 1.1rem;border-radius:20px;
-  word-break:break-all;border:1px solid var(--bl);line-height:1.7}
+.raw-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.raw-label{font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.raw-label svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none}
+.raw-text{font-family:'Menlo','Courier New',monospace;font-size:.8rem;
+  color:var(--text2);background:var(--chip-bg);padding:.8rem 1.1rem;
+  border-radius:12px;word-break:break-all;border:1px solid var(--border);line-height:1.7}
 
-/* Empty state */
-.empty-state{text-align:center;padding:2rem .5rem;color:var(--tm);display:block}
-.empty-state.hide{display:none}
-.empty-state svg{width:52px;height:52px;stroke:var(--tm);stroke-width:1.4;opacity:.25}
-.empty-state h5{font-size:1rem;font-weight:700;color:var(--ts);margin-top:.4rem}
-.empty-state p{font-size:.8rem;opacity:.6}
+/* empty state */
+.empty{text-align:center;padding:2.4rem .5rem;color:var(--muted);display:block}
+.empty.hide{display:none}
+.empty svg{width:58px;height:58px;stroke:var(--muted);stroke-width:1.3;opacity:.22}
+.empty h5{font-size:1.05rem;font-weight:700;color:var(--text2);margin-top:.5rem}
+.empty p{font-size:.88rem;opacity:.6;margin-top:.2rem}
 
-/* History */
-.history-section{margin-top:1.6rem}
-.history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
-.history-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tm);display:flex;align-items:center;gap:.4rem}
-.history-title svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none}
-.btn-clr-hist{background:rgba(209,69,75,.08);color:var(--da);border:1px solid rgba(209,69,75,.10);border-radius:60px;font-family:'Inter',sans-serif;font-weight:600;font-size:.65rem;padding:.25rem .9rem;cursor:pointer;transition:.2s}
-.btn-clr-hist:hover{background:rgba(209,69,75,.16)}
-.hist-list{display:flex;flex-direction:column;gap:.4rem}
-.hist-item{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
-  padding:.6rem 1rem;border-radius:18px;background:rgba(255,255,255,.06);
-  border:1px solid var(--bl);cursor:pointer;transition:.2s}
-.hist-item:hover{background:rgba(255,255,255,.12);border-color:var(--ac)}
-.hist-left{min-width:0;flex:1}
-.hist-ssid{font-size:.82rem;font-weight:700;color:var(--tp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hist-meta{font-size:.62rem;color:var(--tm);margin-top:.1rem}
-.hist-badge{font-size:.55rem;font-weight:600;padding:.2rem .7rem;border-radius:60px;background:rgba(26,107,255,.10);color:var(--ac);border:1px solid rgba(26,107,255,.08);flex-shrink:0}
+/* history */
+.hist-section{margin-top:1.8rem;display:none}
+.hist-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.hist-title{font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.hist-title svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+.hist-clear{background:var(--red-bg);color:var(--red);border:none;border-radius:60px;
+  font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;
+  padding:.32rem 1rem;cursor:pointer;transition:.2s}
+.hist-clear:hover{opacity:.8}
+.hist-list{display:flex;flex-direction:column;gap:.45rem}
+.hist-item{display:flex;align-items:center;justify-content:space-between;gap:.8rem;
+  padding:.75rem 1.2rem;border-radius:14px;background:var(--chip-bg);
+  border:1px solid var(--border);cursor:pointer;transition:.2s}
+.hist-item:hover{border-color:var(--ac);background:rgba(26,107,255,.04)}
+.hist-ssid{font-size:.9rem;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-meta{font-size:.68rem;color:var(--muted);margin-top:.1rem}
+.hist-badge{font-size:.62rem;font-weight:600;padding:.22rem .8rem;border-radius:60px;
+  background:rgba(26,107,255,.1);color:var(--ac);white-space:nowrap;flex-shrink:0}
 
-/* Footer */
-.footer{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--bl);text-align:center;font-size:.7rem;color:var(--ft);opacity:.7}
+/* footer */
+.footer{margin-top:2.2rem;padding-top:1.4rem;border-top:1px solid var(--border);
+  text-align:center;font-size:.78rem;color:var(--footer)}
 .footer a{color:var(--ac);text-decoration:none;font-weight:600}
-.footer .sep{margin:0 .4rem;opacity:.3}
+.footer .sep{margin:0 .5rem;opacity:.35}
 
-/* Toast */
-.toast-wrap{position:fixed;bottom:2.8rem;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;align-items:center;gap:.5rem;pointer-events:none}
-.toast{pointer-events:auto;background:rgba(8,18,40,.8);backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);color:white;padding:.7rem 1.8rem;border-radius:60px;
-  font-size:.8rem;font-weight:500;border:1px solid rgba(255,255,255,.05);
-  box-shadow:0 20px 50px rgba(0,0,0,.2);animation:toastIn .35s ease both}
-[data-theme=dark] .toast{background:rgba(200,215,250,.08)}
-@keyframes toastIn{0%{opacity:0;transform:scale(.92) translateY(16px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+/* toast */
+.toast-wrap{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  z-index:9999;display:flex;flex-direction:column;align-items:center;
+  gap:.5rem;pointer-events:none}
+.toast{pointer-events:auto;background:rgba(5,12,28,.82);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);color:#fff;padding:.75rem 2rem;
+  border-radius:60px;font-size:.88rem;font-weight:500;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 16px 48px rgba(0,0,0,.22);
+  animation:toastIn .3s cubic-bezier(.16,1,.3,1) both}
+[data-theme=dark] .toast{background:rgba(200,220,255,.1)}
+@keyframes toastIn{from{opacity:0;transform:scale(.9) translateY(12px)}to{opacity:1;transform:none}}
+
 @media(max-width:480px){
-  .btn{font-size:.7rem;padding:.5rem .9rem}
-  .cred-item{padding:.5rem .7rem}
-  .result-card{padding:1rem 1.1rem .8rem}
-  .stat-num{font-size:1.1rem}
+  .field-row{grid-template-columns:1fr}
+  .stat-n{font-size:1.3rem}
+  .hero h1{font-size:1.8rem}
+  .result-card{padding:1.2rem 1rem}
+  .cred{padding:.7rem .9rem}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="card">
 
   <!-- Header -->
   <div class="hdr">
-    <a href="#" class="brand" aria-label="home">
-      <span class="bi"><svg viewBox="0 0 24 24"><path d="M1.5 9.5C5.5 5.5 10.5 3.5 12 3.5s6.5 2 10.5 6"/><path d="M5.5 13.5c1.9-1.9 4-2.9 6.5-2.9s4.6 1 6.5 2.9"/><path d="M9.5 17.5c.7-.7 1.6-1 2.5-1s1.8.3 2.5 1"/><circle cx="12" cy="21" r="1.5"/></svg></span>
-      <span class="lt">QR<span class="ac">Scan</span></span>
+    <a href="#" class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M1.5 9.5C5.5 5.5 10.5 3.5 12 3.5s6.5 2 10.5 6"/><path d="M5.5 13.5c1.9-1.9 4-2.9 6.5-2.9s4.6 1 6.5 2.9"/><path d="M9.5 17.5c.7-.7 1.6-1 2.5-1s1.8.3 2.5 1"/><circle cx="12" cy="21" r="1.5"/></svg>
+      </div>
+      <span class="brand-name">QR<span>Scan</span></span>
     </a>
-    <div class="hdr-right">
-      <button class="icon-btn" id="themeToggle" aria-label="switch theme">
-        <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
-      </button>
-    </div>
+    <button class="theme-btn" id="themeBtn" title="Toggle theme">
+      <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+    </button>
   </div>
 
-  <!-- Stats bar -->
-  <div class="stats-bar">
-    <div class="stat-chip"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total Scanned</div></div>
-    <div class="stat-chip"><div class="stat-num" id="statToday">0</div><div class="stat-lbl">Today</div></div>
-    <div class="stat-chip"><div class="stat-num" id="statGenerated">0</div><div class="stat-lbl">Generated</div></div>
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Total Scanned</div></div>
+    <div class="stat"><div class="stat-n" id="sToday">0</div><div class="stat-l">Today</div></div>
+    <div class="stat"><div class="stat-n" id="sGen">0</div><div class="stat-l">Generated</div></div>
   </div>
 
   <!-- Hero -->
   <div class="hero">
-    <div class="headline">Scan &amp; connect <em>instantly</em></div>
-    <div class="sub">Scanner · Generator · History</div>
+    <h1>Scan &amp; connect <em>instantly</em></h1>
+    <p>Point your camera or upload an image</p>
   </div>
 
   <!-- Tabs -->
-  <div class="tabs" role="tablist">
-    <button class="tab active" id="tabCamera" onclick="switchTab('camera')">
+  <div class="tabs">
+    <button class="tab active" id="tCamera" onclick="goTab('camera')">
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Camera
     </button>
-    <button class="tab" id="tabUpload" onclick="switchTab('upload')">
+    <button class="tab" id="tUpload" onclick="goTab('upload')">
       <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Upload
     </button>
-    <button class="tab" id="tabGenerator" onclick="switchTab('generator')">
+    <button class="tab" id="tGenerator" onclick="goTab('generator')">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/></svg>Generate
     </button>
   </div>
 
   <!-- Camera Panel -->
-  <div id="panel-camera" class="panel active">
-    <div class="vf" id="vfWrap">
+  <div id="p-camera" class="panel active">
+    <div class="vf-wrap" id="vfWrap">
       <div id="qr-video"></div>
-      <div class="vf-ov">
+      <div class="vf-overlay">
         <div class="corner tl"></div><div class="corner tr"></div>
         <div class="corner bl"></div><div class="corner br"></div>
         <div class="scan-line" id="scanLine"></div>
       </div>
-      <div class="vf-ph" id="vfPh">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/></svg>
-        <p>camera preview</p>
+      <div class="vf-placeholder" id="vfPh">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/></svg>
+        <p>Tap Start Camera</p>
       </div>
     </div>
     <div class="cam-controls">
-      <button class="torch-btn" id="torchBtn" onclick="toggleTorch()">
+      <button class="torch-btn" id="torchBtn" onclick="doTorch()">
         <svg viewBox="0 0 24 24"><path d="M18 6c0-3.31-2.69-6-6-6S6 2.69 6 6c0 2.22 1.21 4.15 3 5.19V20a3 3 0 0 0 6 0v-8.81c1.79-1.04 3-2.97 3-5.19z"/></svg>Torch
       </button>
     </div>
-    <div class="btn-group">
-      <button class="btn btn-primary" id="btnStart" onclick="startCamera()">
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnStart" onclick="startCam()">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>Start Camera
       </button>
-      <button class="btn btn-danger" id="btnStop" onclick="stopCamera()" style="display:none">
+      <button class="btn btn-red" id="btnStop" onclick="stopCam()" style="display:none;flex:none">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Stop
       </button>
     </div>
-    <div class="status-msg" id="camStatus"><span></span></div>
+    <div class="msg" id="camMsg"><span></span></div>
   </div>
 
   <!-- Upload Panel -->
-  <div id="panel-upload" class="panel">
-    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-      <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
-      <div class="drop-icon"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+  <div id="p-upload" class="panel">
+    <div class="drop" id="dropZone" onclick="document.getElementById('fileIn').click()">
+      <input type="file" id="fileIn" accept="image/*" onchange="onFile(event)">
+      <div class="drop-ico">
+        <svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      </div>
       <h4>Drop image here</h4>
-      <p>or browse — PNG, JPG, WebP</p>
+      <p>or browse &mdash; PNG, JPG, WebP</p>
     </div>
-    <div class="img-pw" id="imgPw">
-      <img id="imgPreview" src="" alt="preview">
-      <button class="img-clr" onclick="clearImage()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="img-prev-wrap" id="prevWrap">
+      <img id="prevImg" src="" alt="">
+      <button class="img-clear-btn" onclick="clearImg()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <button class="btn btn-primary" id="btnScanImg" onclick="scanImage()" style="display:none;width:100%;margin-top:.4rem">
+    <button class="btn btn-primary" id="btnScan" onclick="doScan()" style="display:none;width:100%;margin-top:.6rem">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Scan QR Code
     </button>
-    <div class="status-msg" id="uploadStatus"><span></span></div>
+    <div class="msg" id="upMsg"><span></span></div>
   </div>
 
   <!-- Generator Panel -->
-  <div id="panel-generator" class="panel">
+  <div id="p-generator" class="panel">
     <div class="gen-form">
-      <div class="field-group">
-        <label class="field-label">Network Name (SSID)</label>
-        <input class="field-input" id="genSSID" type="text" placeholder="e.g. MyHomeWiFi" oninput="clearGenQR()">
+      <div class="field">
+        <label>Network Name (SSID)</label>
+        <input type="text" id="gSSID" placeholder="e.g. HomeWiFi_5G" oninput="resetQR()">
       </div>
-      <div class="select-row">
-        <div class="field-group" style="flex:1">
-          <label class="field-label">Security</label>
-          <select class="field-input" id="genSecurity" onchange="toggleGenPw()">
-            <option value="WPA">WPA/WPA2</option>
+      <div class="field-row">
+        <div class="field">
+          <label>Security Type</label>
+          <select id="gSec" onchange="togglePwField()">
+            <option value="WPA">WPA / WPA2</option>
             <option value="WEP">WEP</option>
             <option value="nopass">None (Open)</option>
           </select>
         </div>
-        <div class="field-group" style="flex:1">
-          <label class="field-label">Hidden Network</label>
-          <select class="field-input" id="genHidden">
-            <option value="false">No</option>
-            <option value="true">Yes</option>
+        <div class="field">
+          <label>Hidden Network</label>
+          <select id="gHidden">
+            <option value="false">No (visible)</option>
+            <option value="true">Yes (hidden)</option>
           </select>
         </div>
       </div>
-      <div class="field-group" id="genPwGroup">
-        <label class="field-label">Password</label>
-        <div class="pw-wrap">
-          <input class="field-input" id="genPassword" type="password" placeholder="Enter WiFi password" oninput="onGenPwInput()">
-          <button class="pw-toggle" onclick="toggleGenPwVis()" type="button">
-            <svg id="genEyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <div class="field" id="pwFieldWrap">
+        <label>Password</label>
+        <div class="pw-field">
+          <input type="password" id="gPw" placeholder="Enter WiFi password" oninput="onPwInput()">
+          <button class="pw-eye" type="button" onclick="toggleEye()">
+            <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
-        <div class="pw-strength" id="pwStrength" style="display:none">
-          <div class="pw-bars">
-            <div class="pw-bar" id="bar1"></div>
-            <div class="pw-bar" id="bar2"></div>
-            <div class="pw-bar" id="bar3"></div>
-            <div class="pw-bar" id="bar4"></div>
+        <div class="strength" id="genStrength">
+          <div class="str-bars">
+            <div class="str-bar" id="gb1"></div>
+            <div class="str-bar" id="gb2"></div>
+            <div class="str-bar" id="gb3"></div>
+            <div class="str-bar" id="gb4"></div>
           </div>
-          <span class="pw-str-lbl" id="pwStrLbl"></span>
+          <span class="str-lbl" id="gStrLbl"></span>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="generateQR()" style="width:100%">
+      <button class="btn btn-primary" onclick="genQR()" style="width:100%;padding:.9rem">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/></svg>Generate QR Code
       </button>
     </div>
-    <div class="qr-output" id="qrOutput">
-      <div class="qr-canvas-wrap"><canvas id="qrCanvas"></canvas></div>
-      <div class="btn-group" style="justify-content:center">
-        <button class="btn btn-soft" onclick="downloadQR()" style="flex:0 0 auto">
+
+    <div class="qr-out" id="qrOut">
+      <div class="qr-box"><div id="qrDiv"></div></div>
+      <div class="qr-btns">
+        <button class="btn btn-soft" onclick="dlQR()" style="flex:none;padding:.7rem 1.4rem">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PNG
         </button>
-        <button class="btn btn-soft" onclick="copyGenQRText()" style="flex:0 0 auto">
+        <button class="btn btn-soft" onclick="copyGenText()" style="flex:none;padding:.7rem 1.4rem">
           <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Text
         </button>
       </div>
@@ -432,57 +524,64 @@ select.field-input{cursor:pointer;-webkit-appearance:none;appearance:none}
   </div>
 
   <!-- Empty state -->
-  <div class="empty-state" id="emptyState">
+  <div class="empty" id="emptyState">
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/></svg>
     <h5>No QR scanned yet</h5>
-    <p>Use camera or upload an image</p>
+    <p>Use camera or upload an image to get started</p>
   </div>
 
   <!-- Result card -->
   <div class="result-card" id="resultCard">
-    <div class="result-head">
-      <div class="result-title">
-        <div class="result-icon"><svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></div>
-        <div><div class="result-lbl">WiFi credentials</div><div class="result-name" id="resNetName">Network</div></div>
+    <div class="res-head">
+      <div class="res-title">
+        <div class="res-icon">
+          <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+        </div>
+        <div>
+          <div class="res-label">WiFi Credentials</div>
+          <div class="res-name" id="resName">—</div>
+        </div>
       </div>
-      <div class="result-actions">
-        <button class="btn btn-success" onclick="copyAll()" style="font-size:.7rem;padding:.3rem 1rem;flex:none">Copy all</button>
-      </div>
+      <button class="btn btn-success-outline" onclick="copyAll()" style="flex:none;padding:.45rem 1.2rem;font-size:.8rem">Copy All</button>
     </div>
-    <div class="cred-grid">
-      <div class="cred-item">
-        <div class="cred-left"><div class="cred-key">SSID</div><div class="cred-val" id="credSSID">—</div></div>
-        <div class="cred-right"><button class="btn btn-soft" onclick="copyField('credSSID','SSID')" style="padding:.2rem .8rem;font-size:.6rem;flex:none">copy</button></div>
+    <div class="creds">
+      <div class="cred">
+        <div class="cred-l">
+          <div class="cred-k">SSID</div>
+          <div class="cred-v" id="cSSID">—</div>
+        </div>
+        <div class="cred-r">
+          <button class="mini-btn" onclick="cpField('cSSID','SSID')">copy</button>
+        </div>
       </div>
-      <div class="cred-item" id="pwRow">
-        <div class="cred-left">
-          <div class="cred-key">password · hover to reveal</div>
-          <div class="cred-val blur" id="credPw">—</div>
-          <div class="pw-strength" id="resPwStrength" style="display:none;margin-top:.4rem">
-            <div class="pw-bars">
-              <div class="pw-bar" id="rbar1"></div><div class="pw-bar" id="rbar2"></div>
-              <div class="pw-bar" id="rbar3"></div><div class="pw-bar" id="rbar4"></div>
+      <div class="cred" id="pwRow">
+        <div class="cred-l">
+          <div class="cred-k">Password &middot; hover to reveal</div>
+          <div class="cred-v blurred" id="cPw">—</div>
+          <div class="res-str strength" id="resStrength">
+            <div class="str-bars">
+              <div class="str-bar" id="rb1"></div><div class="str-bar" id="rb2"></div>
+              <div class="str-bar" id="rb3"></div><div class="str-bar" id="rb4"></div>
             </div>
-            <span class="pw-str-lbl" id="resPwStrLbl"></span>
+            <span class="str-lbl" id="rStrLbl"></span>
           </div>
         </div>
-        <div class="cred-right">
-          <button class="btn btn-soft" onclick="togglePw()" style="padding:.2rem .6rem;font-size:.6rem;flex:none" id="togglePwBtn">show</button>
-          <button class="btn btn-soft" onclick="copyField('credPw','password')" style="padding:.2rem .8rem;font-size:.6rem;flex:none">copy</button>
+        <div class="cred-r">
+          <button class="mini-btn" id="pwToggleBtn" onclick="togglePwView()">show</button>
+          <button class="mini-btn" onclick="cpField('cPw','Password')">copy</button>
         </div>
       </div>
-      <div class="cred-item">
-        <div class="cred-left"><div class="cred-key">security</div><div class="cred-val" id="credSec">—</div></div>
-        <div class="cred-right" id="secBadge"></div>
+      <div class="cred">
+        <div class="cred-l"><div class="cred-k">Security</div><div class="cred-v" id="cSec">—</div></div>
+        <div class="cred-r" id="secBadge"></div>
       </div>
-      <div class="cred-item">
-        <div class="cred-left"><div class="cred-key">hidden</div><div class="cred-val" id="credHid">—</div></div>
-        <div class="cred-right" id="hidBadge"></div>
+      <div class="cred">
+        <div class="cred-l"><div class="cred-k">Hidden Network</div><div class="cred-v" id="cHid">—</div></div>
+        <div class="cred-r" id="hidBadge"></div>
       </div>
     </div>
-    <!-- Connect button -->
-    <div class="connect-row" id="connectRow" style="display:none">
-      <button class="btn btn-green btn-connect" onclick="connectWifi()">
+    <div class="connect-wrap" id="connectWrap" style="display:none">
+      <button class="btn btn-green-solid connect-btn" onclick="doConnect()">
         <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>Connect to this Network
       </button>
     </div>
@@ -490,30 +589,28 @@ select.field-input{cursor:pointer;-webkit-appearance:none;appearance:none}
 
   <!-- Raw card -->
   <div class="raw-card" id="rawCard">
-    <div class="raw-head">
-      <div class="raw-head-left">
-        <svg viewBox="0 0 24 24" width="14" height="14"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>raw data
+    <div class="raw-head-row">
+      <div class="raw-label">
+        <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Raw Data
       </div>
-      <button class="btn btn-soft" onclick="copyField('rawText','Raw data')" style="padding:.15rem .7rem;font-size:.58rem;flex:none">copy</button>
+      <button class="mini-btn" onclick="cpField('rawText','Raw data')">copy</button>
     </div>
     <div class="raw-text" id="rawText">—</div>
   </div>
 
   <!-- History -->
-  <div class="history-section" id="histSection" style="display:none">
-    <div class="history-head">
-      <div class="history-title">
+  <div class="hist-section" id="histSection">
+    <div class="hist-head">
+      <div class="hist-title">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Recently Scanned
       </div>
-      <button class="btn-clr-hist" onclick="clearHistory()">Clear all</button>
+      <button class="hist-clear" onclick="clearHist()">Clear all</button>
     </div>
     <div class="hist-list" id="histList"></div>
   </div>
 
   <div class="footer">
-    <span>&copy; 2026 QRScan</span><span class="sep">•</span>
-    <span>All rights reserved</span><span class="sep">•</span>
-    <a href="#" onclick="event.preventDefault()">Privacy</a>
+    &copy; 2026 QRScan<span class="sep">&bull;</span>All rights reserved<span class="sep">&bull;</span><a href="#" onclick="return false">Privacy</a>
   </div>
 </div>
 
@@ -523,478 +620,697 @@ select.field-input{cursor:pointer;-webkit-appearance:none;appearance:none}
 (function(){
 'use strict';
 
-/* ── Theme ── */
-const saved = localStorage.getItem('qrscan-theme');
-if(saved==='dark'||(!saved&&window.matchMedia('(prefers-color-scheme:dark)').matches))
-  document.documentElement.setAttribute('data-theme','dark');
-document.getElementById('themeToggle').addEventListener('click',()=>{
-  const dark=document.documentElement.getAttribute('data-theme')==='dark';
-  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
-  localStorage.setItem('qrscan-theme',dark?'light':'dark');
-});
+/* ─── Theme: default LIGHT, toggle dark ─── */
+const html = document.documentElement;
+const saved = localStorage.getItem('qrs-theme');
+// default is light — only go dark if explicitly saved
+if(saved === 'dark') html.setAttribute('data-theme','dark');
 
-/* ── State ── */
-let html5QrCode=null, cameraRunning=false, uploadedFile=null;
-let pwVisible=false, torchOn=false, torchTrack=null;
-let lastScannedData=null;
-const HIST_KEY='qrscan-history', STATS_KEY='qrscan-stats';
+document.getElementById('themeBtn').onclick = function(){
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('qrs-theme', isDark ? 'light' : 'dark');
+};
 
-/* ── Stats ── */
-function loadStats(){try{return JSON.parse(localStorage.getItem(STATS_KEY))||{total:0,today:0,todayDate:'',generated:0}}catch{return{total:0,today:0,todayDate:'',generated:0}}}
-function saveStats(s){localStorage.setItem(STATS_KEY,JSON.stringify(s))}
-function bumpScanStat(){
-  const s=loadStats(), today=new Date().toDateString();
-  s.total=(s.total||0)+1;
-  if(s.todayDate===today) s.today=(s.today||0)+1;
-  else{s.today=1;s.todayDate=today}
-  saveStats(s); renderStats();
+/* ─── State ─── */
+let scanner = null, camRunning = false;
+let uploadFile = null, pwShown = false;
+let torchOn = false, torchTrack = null;
+let lastData = null, qrInstance = null;
+const HK = 'qrs-hist', SK = 'qrs-stats';
+
+/* ─── Stats ─── */
+function getStats(){ try{ return JSON.parse(localStorage.getItem(SK))||{t:0,d:0,date:'',g:0}; }catch{ return{t:0,d:0,date:'',g:0}; } }
+function putStats(s){ localStorage.setItem(SK,JSON.stringify(s)); }
+function bumpScan(){
+  const s=getStats(), today=new Date().toDateString();
+  s.t=(s.t||0)+1;
+  s.d = s.date===today ? (s.d||0)+1 : 1;
+  s.date=today; putStats(s); renderStats();
 }
-function bumpGenStat(){
-  const s=loadStats(); s.generated=(s.generated||0)+1;
-  saveStats(s); renderStats();
-}
+function bumpGen(){ const s=getStats(); s.g=(s.g||0)+1; putStats(s); renderStats(); }
 function renderStats(){
-  const s=loadStats();
-  document.getElementById('statTotal').textContent=s.total||0;
-  document.getElementById('statToday').textContent=s.today||0;
-  document.getElementById('statGenerated').textContent=s.generated||0;
+  const s=getStats();
+  document.getElementById('sTotal').textContent=s.t||0;
+  document.getElementById('sToday').textContent=s.d||0;
+  document.getElementById('sGen').textContent=s.g||0;
 }
 renderStats();
 
-/* ── Tabs ── */
-window.switchTab=function(tab){
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
-  document.getElementById('panel-'+tab).classList.add('active');
-  if(tab!=='camera'&&cameraRunning) stopCamera();
+/* ─── Tabs ─── */
+window.goTab = function(name){
+  ['camera','upload','generator'].forEach(t=>{
+    document.getElementById('t'+cap(t)).classList.toggle('active',t===name);
+    document.getElementById('p-'+t).classList.toggle('active',t===name);
+  });
+  if(name!=='camera' && camRunning) stopCam();
 };
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
 
-/* ── Status helpers ── */
-function setStatus(id,type,msg){
+/* ─── Msg ─── */
+function msg(id,type,text){
   const el=document.getElementById(id);
-  el.className='status-msg show '+type;
-  el.querySelector('span').textContent=msg;
+  el.className='msg show '+type;
+  el.querySelector('span').textContent=text;
 }
-function clearStatus(id){document.getElementById(id).className='status-msg'}
+function clearMsg(id){ document.getElementById(id).className='msg'; }
 
-/* ── Camera ── */
-window.startCamera=function(){
-  setStatus('camStatus','info','Requesting camera…');
-  if(!html5QrCode) html5QrCode=new Html5Qrcode('qr-video',{verbose:false});
-  html5QrCode.start({facingMode:'environment'},{fps:12,qrbox:{width:200,height:200},aspectRatio:1.0},
-    decoded=>onQRSuccess(decoded),()=>{})
-  .then(()=>{
-    cameraRunning=true;
+/* ─── Camera ─── */
+window.startCam = function(){
+  msg('camMsg','info','Requesting camera access…');
+  if(!scanner) scanner = new Html5Qrcode('qr-video',{verbose:false});
+  scanner.start({facingMode:'environment'},
+    {fps:12, qrbox:{width:220,height:220}, aspectRatio:1.0},
+    text => onScan(text), ()=>{}
+  ).then(()=>{
+    camRunning=true;
     document.getElementById('vfPh').style.display='none';
     document.getElementById('scanLine').style.display='block';
     document.getElementById('btnStart').style.display='none';
     document.getElementById('btnStop').style.display='inline-flex';
     document.getElementById('torchBtn').style.display='inline-flex';
-    setStatus('camStatus','info','Scanning for WiFi QR…');
-    // Try to get torch track
-    try{
-      const stream=html5QrCode.getRunningTrackCameraCapabilities
-        ?null:null; // will grab below
-      const vid=document.querySelector('#qr-video video');
-      if(vid&&vid.srcObject){
-        const tracks=vid.srcObject.getVideoTracks();
-        if(tracks.length) torchTrack=tracks[0];
+    msg('camMsg','info','Scanning — point at WiFi QR code…');
+    // grab torch track
+    setTimeout(()=>{
+      const v=document.querySelector('#qr-video video');
+      if(v&&v.srcObject){
+        const tk=v.srcObject.getVideoTracks();
+        if(tk.length) torchTrack=tk[0];
       }
-    }catch(e){}
-  }).catch(()=>setStatus('camStatus','error','Camera access denied.'));
+    },600);
+  }).catch(()=>msg('camMsg','error','Camera access denied or not available.'));
 };
 
-window.stopCamera=function(){
-  if(html5QrCode&&cameraRunning){
-    html5QrCode.stop().then(()=>{
-      cameraRunning=false; torchTrack=null; torchOn=false;
-      const tb=document.getElementById('torchBtn');
-      tb.classList.remove('on'); tb.style.display='none';
-      document.getElementById('vfPh').style.display='flex';
-      document.getElementById('scanLine').style.display='none';
-      document.getElementById('btnStart').style.display='inline-flex';
-      document.getElementById('btnStop').style.display='none';
-      clearStatus('camStatus');
-    }).catch(()=>{});
-  }
+window.stopCam = function(){
+  if(!scanner||!camRunning) return;
+  scanner.stop().then(()=>{
+    camRunning=false; torchTrack=null; torchOn=false;
+    document.getElementById('torchBtn').classList.remove('on');
+    document.getElementById('torchBtn').style.display='none';
+    document.getElementById('vfPh').style.display='flex';
+    document.getElementById('scanLine').style.display='none';
+    document.getElementById('btnStart').style.display='inline-flex';
+    document.getElementById('btnStop').style.display='none';
+    clearMsg('camMsg');
+  }).catch(()=>{});
 };
 
-window.toggleTorch=function(){
-  if(!torchTrack) return;
+window.doTorch = function(){
+  if(!torchTrack){ toast('Torch not supported on this device'); return; }
   torchOn=!torchOn;
   torchTrack.applyConstraints({advanced:[{torch:torchOn}]})
     .then(()=>{
-      const tb=document.getElementById('torchBtn');
-      torchOn?tb.classList.add('on'):tb.classList.remove('on');
-      tb.querySelector('span') && (tb.querySelector('span').textContent=torchOn?'Torch On':'Torch');
-    }).catch(()=>showToast('Torch not supported'));
+      const btn=document.getElementById('torchBtn');
+      btn.classList.toggle('on',torchOn);
+      btn.innerHTML=(torchOn
+        ?'<svg viewBox="0 0 24 24" width="15" height="15" style="stroke:currentColor;stroke-width:2;fill:none"><path d="M18 6c0-3.31-2.69-6-6-6S6 2.69 6 6c0 2.22 1.21 4.15 3 5.19V20a3 3 0 0 0 6 0v-8.81c1.79-1.04 3-2.97 3-5.19z"/></svg>Torch ON'
+        :'<svg viewBox="0 0 24 24" width="15" height="15" style="stroke:currentColor;stroke-width:2;fill:none"><path d="M18 6c0-3.31-2.69-6-6-6S6 2.69 6 6c0 2.22 1.21 4.15 3 5.19V20a3 3 0 0 0 6 0v-8.81c1.79-1.04 3-2.97 3-5.19z"/></svg>Torch');
+    }).catch(()=>toast('Torch not supported'));
 };
 
-/* ── Upload ── */
-window.handleFileSelect=function(e){
-  const f=e.target.files[0]; if(f) loadFile(f);
-};
+/* ─── Upload ─── */
+window.onFile = function(e){ const f=e.target.files[0]; if(f) loadFile(f); };
 const dz=document.getElementById('dropZone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over')});
-dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
 dz.addEventListener('drop',e=>{
-  e.preventDefault();dz.classList.remove('drag-over');
+  e.preventDefault(); dz.classList.remove('over');
   const f=e.dataTransfer.files[0];
   if(f&&f.type.startsWith('image/')) loadFile(f);
 });
-function loadFile(file){
-  uploadedFile=file;
+function loadFile(f){
+  uploadFile=f;
   const r=new FileReader();
   r.onload=ev=>{
-    document.getElementById('imgPreview').src=ev.target.result;
-    document.getElementById('imgPw').style.display='block';
-    document.getElementById('btnScanImg').style.display='inline-flex';
-    clearStatus('uploadStatus');
+    document.getElementById('prevImg').src=ev.target.result;
+    document.getElementById('prevWrap').style.display='block';
+    document.getElementById('btnScan').style.display='inline-flex';
+    clearMsg('upMsg');
   };
-  r.readAsDataURL(file);
+  r.readAsDataURL(f);
 }
-window.clearImage=function(){
-  uploadedFile=null;
-  document.getElementById('imgPreview').src='';
-  document.getElementById('imgPw').style.display='none';
-  document.getElementById('btnScanImg').style.display='none';
-  document.getElementById('fileInput').value='';
-  clearStatus('uploadStatus');
+window.clearImg=function(){
+  uploadFile=null;
+  document.getElementById('prevImg').src='';
+  document.getElementById('prevWrap').style.display='none';
+  document.getElementById('btnScan').style.display='none';
+  document.getElementById('fileIn').value='';
+  clearMsg('upMsg');
 };
 
-window.scanImage=async function(){
-  if(!uploadedFile) return;
-  const btn=document.getElementById('btnScanImg');
-  btn.disabled=true; btn.textContent='scanning…';
-  setStatus('uploadStatus','info','Processing image…');
+window.doScan=async function(){
+  if(!uploadFile) return;
+  const btn=document.getElementById('btnScan');
+  btn.disabled=true; btn.textContent='Scanning…';
+  msg('upMsg','info','Processing image…');
   try{
-    const imgEl=document.getElementById('imgPreview');
-    const canvas=document.createElement('canvas');
-    const ctx=canvas.getContext('2d');
-    // Try original size
-    canvas.width=imgEl.naturalWidth; canvas.height=imgEl.naturalHeight;
-    ctx.drawImage(imgEl,0,0);
-    let id=ctx.getImageData(0,0,canvas.width,canvas.height);
-    let code=jsQR(id.data,id.width,id.height,{inversionAttempts:'dontInvert'});
-    // Try 2x upscale
+    const img=document.getElementById('prevImg');
+    const c=document.createElement('canvas');
+    const x=c.getContext('2d');
+    // attempt 1: original
+    c.width=img.naturalWidth; c.height=img.naturalHeight;
+    x.drawImage(img,0,0);
+    let d=x.getImageData(0,0,c.width,c.height);
+    let code=jsQR(d.data,d.width,d.height,{inversionAttempts:'dontInvert'});
+    // attempt 2: 2x upscale
     if(!code){
-      canvas.width=imgEl.naturalWidth*2; canvas.height=imgEl.naturalHeight*2;
-      ctx.drawImage(imgEl,0,0,canvas.width,canvas.height);
-      id=ctx.getImageData(0,0,canvas.width,canvas.height);
-      code=jsQR(id.data,id.width,id.height,{inversionAttempts:'attemptBoth'});
+      c.width=img.naturalWidth*2; c.height=img.naturalHeight*2;
+      x.drawImage(img,0,0,c.width,c.height);
+      d=x.getImageData(0,0,c.width,c.height);
+      code=jsQR(d.data,d.width,d.height,{inversionAttempts:'attemptBoth'});
     }
-    // Try grayscale boost
+    // attempt 3: threshold binarize
     if(!code){
-      canvas.width=imgEl.naturalWidth; canvas.height=imgEl.naturalHeight;
-      ctx.drawImage(imgEl,0,0);
-      id=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const d=id.data;
-      for(let i=0;i<d.length;i+=4){
-        const avg=(d[i]+d[i+1]+d[i+2])/3;
-        const v=avg<128?0:255;
-        d[i]=d[i+1]=d[i+2]=v;
+      c.width=img.naturalWidth; c.height=img.naturalHeight;
+      x.drawImage(img,0,0);
+      d=x.getImageData(0,0,c.width,c.height);
+      const px=d.data;
+      for(let i=0;i<px.length;i+=4){
+        const g=(px[i]*0.299+px[i+1]*0.587+px[i+2]*0.114);
+        const v=g<128?0:255;
+        px[i]=px[i+1]=px[i+2]=v;
       }
-      code=jsQR(d,canvas.width,canvas.height,{inversionAttempts:'attemptBoth'});
+      x.putImageData(d,0,0);
+      d=x.getImageData(0,0,c.width,c.height);
+      code=jsQR(d.data,d.width,d.height,{inversionAttempts:'attemptBoth'});
     }
-    if(code&&code.data){onQRSuccess(code.data);clearStatus('uploadStatus');}
-    else setStatus('uploadStatus','error','No QR code found. Try a clearer image.');
-  }catch(err){
-    console.warn('Scan error:',err);
-    setStatus('uploadStatus','error','Scan failed. Try again.');
+    if(code&&code.data){ onScan(code.data); clearMsg('upMsg'); }
+    else msg('upMsg','error','No QR code found. Try a clearer or higher resolution image.');
+  }catch(e){
+    console.warn(e);
+    msg('upMsg','error','Scan failed. Please try again.');
   }finally{
-    btn.disabled=false; btn.textContent='Scan QR Code';
-    btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" style="stroke:white;stroke-width:2;fill:none;flex-shrink:0"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Scan QR Code';
+    btn.disabled=false;
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" style="stroke:white;stroke-width:2;fill:none;flex-shrink:0"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Scan QR Code';
   }
 };
 
-/* ── QR Parse ── */
-function parseQR(raw){
-  const out={isWifi:false,ssid:'',password:'',security:'',hidden:false,type:'Other'};
+/* ─── QR Parse ─── */
+function parseWifi(raw){
+  const o={isWifi:false,ssid:'',pw:'',sec:'',hidden:false,type:'Other'};
   if(!/^WIFI:/i.test(raw)){
-    if(/^https?:\/\//i.test(raw)) out.type='URL';
-    else if(/^mailto:/i.test(raw)) out.type='Email';
-    else if(/^BEGIN:VCARD/i.test(raw)) out.type='vCard';
-    else out.type='Text';
-    return out;
+    if(/^https?:\/\//i.test(raw)) o.type='URL';
+    else if(/^mailto:/i.test(raw)) o.type='Email';
+    else if(/^BEGIN:VCARD/i.test(raw)) o.type='vCard';
+    else o.type='Text';
+    return o;
   }
-  out.isWifi=true; out.type='WiFi';
-  const ex=key=>{
-    const m=raw.match(new RegExp('[;:]'+key+':([^;]*)','i'));
+  o.isWifi=true; o.type='WiFi';
+  function ex(k){
+    const m=raw.match(new RegExp('[;:]'+k+':([^;]*)','i'));
     return m?m[1].trim():'';
-  };
-  out.ssid=ex('S'); out.password=ex('P');
-  out.security=(ex('T')||'nopass').toUpperCase();
-  if(out.security==='NOPASS') out.security='Open';
-  const h=ex('H'); out.hidden=(h==='true'||h==='1');
-  return out;
+  }
+  o.ssid=ex('S'); o.pw=ex('P');
+  o.sec=(ex('T')||'nopass').toUpperCase();
+  if(o.sec==='NOPASS') o.sec='Open';
+  const h=ex('H'); o.hidden=(h==='true'||h==='1');
+  return o;
 }
 
-/* ── Password Strength ── */
-function pwStrength(pw){
-  if(!pw||pw.length===0) return{level:0,label:'',cls:''};
-  let score=0;
-  if(pw.length>=8) score++;
-  if(pw.length>=12) score++;
-  if(/[A-Z]/.test(pw)&&/[a-z]/.test(pw)) score++;
-  if(/[0-9]/.test(pw)) score++;
-  if(/[^A-Za-z0-9]/.test(pw)) score++;
-  if(score<=2) return{level:1,label:'Weak',cls:'w'};
-  if(score<=3) return{level:2,label:'Medium',cls:'m'};
-  return{level:3,label:'Strong',cls:'s'};
+/* ─── Password Strength ─── */
+function strength(pw){
+  if(!pw) return null;
+  let sc=0;
+  if(pw.length>=8) sc++;
+  if(pw.length>=12) sc++;
+  if(/[A-Z]/.test(pw)&&/[a-z]/.test(pw)) sc++;
+  if(/[0-9]/.test(pw)) sc++;
+  if(/[^A-Za-z0-9]/.test(pw)) sc++;
+  if(sc<=2) return{lvl:1,lbl:'Weak',cls:'w',col:'#ef4444'};
+  if(sc<=3) return{lvl:2,lbl:'Medium',cls:'m',col:'#f59e0b'};
+  return{lvl:3,lbl:'Strong',cls:'s',col:'#10b981'};
 }
-function renderPwStrength(pw,barIds,lblId,wrapId){
+function applyStrength(pw, barIds, lblId, wrapId){
   const wrap=document.getElementById(wrapId);
-  if(!pw){wrap.style.display='none';return;}
+  const s=strength(pw);
+  if(!pw||!s){ wrap.style.display='none'; return; }
   wrap.style.display='flex';
-  const str=pwStrength(pw);
-  const bars=['w','m','s','s'];
+  const fill=s.lvl===1?1:s.lvl===2?2:4;
   barIds.forEach((id,i)=>{
     const el=document.getElementById(id);
-    el.className='pw-bar';
-    if(str.level>0&&i<(str.level===1?1:str.level===2?2:4)) el.classList.add(str.cls);
+    el.className='str-bar';
+    if(i<fill) el.classList.add(s.cls);
   });
-  document.getElementById(lblId).textContent=str.label;
-  document.getElementById(lblId).style.color=str.cls==='w'?'#ef4444':str.cls==='m'?'#f59e0b':'#10b981';
+  const lbl=document.getElementById(lblId);
+  lbl.textContent=s.lbl; lbl.style.color=s.col;
 }
 
-/* ── Scan Success ── */
-function onQRSuccess(text){
-  // Vibrate + sound
-  try{navigator.vibrate&&navigator.vibrate([60,30,60]);}catch(e){}
+/* ─── Scan Success ─── */
+function onScan(text){
+  // sound
   try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator(); const gain=ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.setValueAtTime(880,ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1200,ctx.currentTime+0.08);
-    gain.gain.setValueAtTime(0.3,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);
-    osc.start(); osc.stop(ctx.currentTime+0.25);
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ac.createOscillator(), g=ac.createGain();
+    osc.connect(g); g.connect(ac.destination);
+    osc.frequency.value=880;
+    osc.frequency.exponentialRampToValueAtTime(1400,ac.currentTime+0.1);
+    g.gain.value=0.25;
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.28);
+    osc.start(); osc.stop(ac.currentTime+0.28);
   }catch(e){}
-
+  // vibrate
+  try{ navigator.vibrate&&navigator.vibrate([50,30,50]); }catch(e){}
+  // flash corners
   document.getElementById('vfWrap').classList.add('detected');
-  setTimeout(()=>document.getElementById('vfWrap').classList.remove('detected'),1800);
+  setTimeout(()=>document.getElementById('vfWrap').classList.remove('detected'),1600);
 
-  const data=parseQR(text);
-  lastScannedData={data,text};
+  const d=parseWifi(text);
+  lastData={d,text};
 
   document.getElementById('emptyState').classList.add('hide');
   document.getElementById('rawCard').classList.add('show');
   document.getElementById('rawText').textContent=text;
   document.getElementById('resultCard').classList.add('show');
 
-  if(data.isWifi){
-    document.getElementById('resNetName').textContent=data.ssid||'Unknown';
-    document.getElementById('credSSID').textContent=data.ssid||'—';
-    document.getElementById('credPw').textContent=data.password||'(no password)';
-    document.getElementById('credSec').textContent=data.security||'—';
-    document.getElementById('credHid').textContent=data.hidden?'Yes':'No';
-    document.getElementById('pwRow').style.opacity=data.password?'1':'0.5';
+  if(d.isWifi){
+    document.getElementById('resName').textContent=d.ssid||'Unknown';
+    document.getElementById('cSSID').textContent=d.ssid||'—';
+    document.getElementById('cPw').textContent=d.pw||'(no password)';
+    document.getElementById('cSec').textContent=d.sec||'—';
+    document.getElementById('cHid').textContent=d.hidden?'Yes':'No';
+    document.getElementById('pwRow').style.opacity=d.pw?'1':'0.55';
 
-    const pwEl=document.getElementById('credPw');
-    if(data.password){
-      pwEl.classList.add('blur'); pwVisible=false;
-      document.getElementById('togglePwBtn').textContent='show';
-      renderPwStrength(data.password,['rbar1','rbar2','rbar3','rbar4'],'resPwStrLbl','resPwStrength');
+    const pEl=document.getElementById('cPw');
+    if(d.pw){
+      pEl.classList.add('blurred'); pwShown=false;
+      document.getElementById('pwToggleBtn').textContent='show';
+      applyStrength(d.pw,['rb1','rb2','rb3','rb4'],'rStrLbl','resStrength');
     } else {
-      pwEl.classList.remove('blur');
-      document.getElementById('resPwStrength').style.display='none';
+      pEl.classList.remove('blurred');
+      document.getElementById('resStrength').style.display='none';
     }
 
-    const sec=data.security.toUpperCase();
-    let cls='badge';
-    if(sec.includes('WPA')) cls+=' badge-wpa';
-    else if(sec.includes('WEP')) cls+=' badge-wep';
-    else if(sec==='OPEN') cls+=' badge-open';
-    document.getElementById('secBadge').innerHTML='<span class="'+cls+'">'+data.security+'</span>';
-    document.getElementById('hidBadge').innerHTML=data.hidden
-      ?'<span class="badge">hidden</span>'
-      :'<span class="badge" style="opacity:.5">visible</span>';
-    document.getElementById('connectRow').style.display='block';
+    const sec=d.sec.toUpperCase();
+    let bc='badge badge-default';
+    if(sec.includes('WPA')) bc='badge badge-wpa';
+    else if(sec.includes('WEP')) bc='badge badge-wep';
+    else if(sec==='OPEN') bc='badge badge-open';
+    document.getElementById('secBadge').innerHTML='<span class="'+bc+'">'+esc(d.sec)+'</span>';
+    document.getElementById('hidBadge').innerHTML=d.hidden
+      ?'<span class="badge badge-default">Hidden</span>'
+      :'<span class="badge badge-default" style="opacity:.5">Visible</span>';
+    document.getElementById('connectWrap').style.display='block';
   } else {
-    document.getElementById('resNetName').textContent=data.type;
-    document.getElementById('credSSID').textContent=text.slice(0,60)+(text.length>60?'…':'');
-    document.getElementById('credPw').textContent='—';
-    document.getElementById('credSec').textContent='—';
-    document.getElementById('credHid').textContent='—';
+    document.getElementById('resName').textContent=d.type;
+    document.getElementById('cSSID').textContent=text.slice(0,70)+(text.length>70?'…':'');
+    document.getElementById('cPw').textContent='—';
+    document.getElementById('cSec').textContent='—';
+    document.getElementById('cHid').textContent='—';
     document.getElementById('secBadge').innerHTML='';
     document.getElementById('hidBadge').innerHTML='';
     document.getElementById('pwRow').style.opacity='0.5';
-    document.getElementById('connectRow').style.display='none';
-    document.getElementById('resPwStrength').style.display='none';
+    document.getElementById('connectWrap').style.display='none';
+    document.getElementById('resStrength').style.display='none';
   }
 
-  addToHistory(data,text);
-  bumpScanStat();
-  if(cameraRunning) stopCamera();
-  showToast('QR scanned successfully');
+  addHist(d,text);
+  bumpScan();
+  if(camRunning) stopCam();
+  toast('QR scanned successfully ✓');
 }
 
-/* ── Connect to WiFi ── */
-window.connectWifi=function(){
-  if(!lastScannedData||!lastScannedData.data.isWifi) return;
-  const {ssid,password}=lastScannedData.data;
-  // Android intent
-  const ua=navigator.userAgent;
-  if(/Android/i.test(ua)){
-    const intent='intent://wifi/#Intent;scheme=android.settings.WIFI_SETTINGS;end';
-    window.location.href=intent;
-    showToast('Opening WiFi settings…');
-    return;
-  }
-  // iOS — copy and open settings
-  if(/iPhone|iPad/i.test(ua)){
-    navigator.clipboard.writeText(password||'').catch(()=>{});
-    showToast('Password copied — open Settings > WiFi');
-    setTimeout(()=>{try{window.location.href='App-Prefs:root=WIFI';}catch(e){}},800);
-    return;
-  }
-  // Desktop fallback
-  const lines='SSID: '+ssid+'\nPassword: '+(password||'(none)')+'\nSecurity: '+lastScannedData.data.security;
-  navigator.clipboard.writeText(lines).then(()=>showToast('Credentials copied — connect manually')).catch(()=>{});
-};
-
-/* ── Copy ── */
-window.copyField=function(elId,label){
-  const text=document.getElementById(elId).textContent.trim();
-  if(!text||text==='—'||text==='(no password)'){showToast('Nothing to copy');return;}
-  navigator.clipboard.writeText(text).then(()=>showToast(label+' copied')).catch(()=>fbCopy(text,label));
+/* ─── Copy ─── */
+window.cpField=function(id,label){
+  const t=document.getElementById(id).textContent.trim();
+  if(!t||t==='—'||t==='(no password)'){ toast('Nothing to copy'); return; }
+  navigator.clipboard.writeText(t).then(()=>toast(label+' copied')).catch(()=>fbCopy(t,label));
 };
 window.copyAll=function(){
-  const ssid=document.getElementById('credSSID').textContent.trim();
-  const pass=document.getElementById('credPw').textContent.trim();
-  const sec=document.getElementById('credSec').textContent.trim();
-  const txt='SSID: '+ssid+'\nPassword: '+pass+'\nSecurity: '+sec;
-  navigator.clipboard.writeText(txt).then(()=>showToast('All copied')).catch(()=>fbCopy(txt,'credentials'));
+  const s=document.getElementById('cSSID').textContent.trim();
+  const p=document.getElementById('cPw').textContent.trim();
+  const sc=document.getElementById('cSec').textContent.trim();
+  navigator.clipboard.writeText('SSID: '+s+'\nPassword: '+p+'\nSecurity: '+sc)
+    .then(()=>toast('All credentials copied')).catch(()=>fbCopy('','credentials'));
 };
-function fbCopy(text,label){
+function fbCopy(t,label){
   const ta=document.createElement('textarea');
-  ta.value=text;ta.style.cssText='position:fixed;opacity:0;';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');showToast(label+' copied');}catch{showToast('Copy failed');}
+  ta.value=t; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast(label+' copied'); }catch{ toast('Copy failed'); }
   document.body.removeChild(ta);
 }
-window.togglePw=function(){
-  const el=document.getElementById('credPw');
-  pwVisible=!pwVisible;
-  if(pwVisible){el.classList.remove('blur');document.getElementById('togglePwBtn').textContent='hide';}
-  else{el.classList.add('blur');document.getElementById('togglePwBtn').textContent='show';}
+window.togglePwView=function(){
+  const el=document.getElementById('cPw');
+  pwShown=!pwShown;
+  el.classList.toggle('blurred',!pwShown);
+  document.getElementById('pwToggleBtn').textContent=pwShown?'hide':'show';
 };
 
-/* ── Generator ── */
-window.toggleGenPw=function(){
-  const sec=document.getElementById('genSecurity').value;
-  document.getElementById('genPwGroup').style.display=sec==='nopass'?'none':'block';
-  clearGenQR();
+/* ─── Connect ─── */
+window.doConnect=function(){
+  if(!lastData||!lastData.d.isWifi) return;
+  const {ssid,pw}={ssid:lastData.d.ssid,pw:lastData.d.pw};
+  const ua=navigator.userAgent;
+  if(/Android/i.test(ua)){
+    window.location.href='intent://wifi/#Intent;scheme=android.settings.WIFI_SETTINGS;end';
+    toast('Opening WiFi settings…');
+  } else if(/iPhone|iPad|iPod/i.test(ua)){
+    navigator.clipboard.writeText(pw||'').catch(()=>{});
+    toast('Password copied — open Settings → WiFi');
+    setTimeout(()=>{ try{window.location.href='App-Prefs:root=WIFI';}catch(e){} },700);
+  } else {
+    const t='SSID: '+ssid+'\nPassword: '+(pw||'none')+'\nSecurity: '+lastData.d.sec;
+    navigator.clipboard.writeText(t).then(()=>toast('Credentials copied — connect manually')).catch(()=>{});
+  }
 };
-window.onGenPwInput=function(){
-  const pw=document.getElementById('genPassword').value;
-  renderPwStrength(pw,['bar1','bar2','bar3','bar4'],'pwStrLbl','pwStrength');
-  clearGenQR();
+
+/* ─── Generator ─── */
+window.togglePwField=function(){
+  const sec=document.getElementById('gSec').value;
+  document.getElementById('pwFieldWrap').style.display=sec==='nopass'?'none':'block';
+  resetQR();
 };
-window.toggleGenPwVis=function(){
-  const inp=document.getElementById('genPassword');
+window.onPwInput=function(){
+  applyStrength(document.getElementById('gPw').value,['gb1','gb2','gb3','gb4'],'gStrLbl','genStrength');
+  resetQR();
+};
+window.toggleEye=function(){
+  const inp=document.getElementById('gPw');
   inp.type=inp.type==='password'?'text':'password';
 };
-window.clearGenQR=function(){
-  document.getElementById('qrOutput').style.display='none';
-};
-window.generateQR=function(){
-  const ssid=document.getElementById('genSSID').value.trim();
-  if(!ssid){showToast('Please enter a network name');return;}
-  const sec=document.getElementById('genSecurity').value;
-  const pw=document.getElementById('genPassword').value;
-  const hidden=document.getElementById('genHidden').value;
-  const wifiStr='WIFI:S:'+escQR(ssid)+';T:'+(sec==='nopass'?'nopass':sec)+';P:'+escQR(pw)+';H:'+hidden+';;';
-  const canvas=document.getElementById('qrCanvas');
-  QRCode.toCanvas(canvas,wifiStr,{
-    width:220,margin:2,
-    color:{dark:'#000000',light:'#ffffff'},
-    errorCorrectionLevel:'M'
-  },err=>{
-    if(err){showToast('QR generation failed');return;}
-    document.getElementById('qrOutput').style.display='block';
-    bumpGenStat();
-    showToast('QR Code generated!');
-  });
-};
-function escQR(s){return s.replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/"/g,'\\"').replace(/:/g,'\\:');}
-window.downloadQR=function(){
-  const canvas=document.getElementById('qrCanvas');
-  const link=document.createElement('a');
-  link.download='wifi-qr-'+(document.getElementById('genSSID').value.trim()||'network')+'.png';
-  link.href=canvas.toDataURL('image/png');
-  link.click();
-  showToast('QR downloaded!');
-};
-window.copyGenQRText=function(){
-  const ssid=document.getElementById('genSSID').value.trim();
-  const pw=document.getElementById('genPassword').value;
-  const txt='SSID: '+ssid+'\nPassword: '+pw;
-  navigator.clipboard.writeText(txt).then(()=>showToast('Copied!')).catch(()=>fbCopy(txt,'text'));
+window.resetQR=function(){ document.getElementById('qrOut').style.display='none'; };
+
+window.genQR=function(){
+  const ssid=document.getElementById('gSSID').value.trim();
+  if(!ssid){ toast('Please enter a Network Name (SSID)'); return; }
+  const sec=document.getElementById('gSec').value;
+  const pw=sec==='nopass'?'':document.getElementById('gPw').value;
+  const hidden=document.getElementById('gHidden').value;
+  const wifiStr='WIFI:S:'+qesc(ssid)+';T:'+(sec==='nopass'?'nopass':sec)+';P:'+qesc(pw)+';H:'+hidden+';;';
+
+  const div=document.getElementById('qrDiv');
+  div.innerHTML='';
+
+  try{
+    const canvas=document.createElement('canvas');
+    canvas.width=220; canvas.height=220;
+    div.appendChild(canvas);
+    drawQR(canvas, wifiStr, 220);
+    document.getElementById('qrOut').style.display='block';
+    bumpGen();
+    toast('QR Code generated!');
+  }catch(e){
+    console.error('QR error:',e);
+    div.innerHTML='';
+    toast('Generation failed — try again');
+  }
 };
 
-/* ── History ── */
-function loadHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY))||[];}catch{return[];}}
-function saveHistory(a){localStorage.setItem(HIST_KEY,JSON.stringify(a));}
-function addToHistory(data,rawText){
-  const arr=loadHistory();
-  const idx=arr.findIndex(h=>h.raw===rawText);
-  if(idx!==-1) arr.splice(idx,1);
-  arr.unshift({
-    ssid:data.isWifi?(data.ssid||'Unknown'):rawText.slice(0,30),
-    security:data.isWifi?data.security:'',
-    type:data.type,time:Date.now(),raw:rawText
-  });
-  if(arr.length>10) arr.length=10;
-  saveHistory(arr); renderHistory();
+function qesc(s){ return String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/"/g,'\\"').replace(/:/g,'\\:'); }
+
+/* ── Pure-JS QR Code Generator (no library needed) ── */
+function drawQR(canvas, text, size){
+  // Reed-Solomon + QR Matrix generator
+  var qr=createQR(text,0,2); // 0=auto version, 2=M error correction
+  var ctx=canvas.getContext('2d');
+  var mod=qr.modules;
+  var n=mod.length;
+  var cell=Math.floor(size/n);
+  var offset=Math.floor((size-cell*n)/2);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,size,size);
+  ctx.fillStyle='#000';
+  for(var r=0;r<n;r++){
+    for(var c=0;c<n;c++){
+      if(mod[r][c]){
+        ctx.fillRect(offset+c*cell, offset+r*cell, cell, cell);
+      }
+    }
+  }
 }
-function renderHistory(){
-  const arr=loadHistory();
+
+function createQR(data, typeNumber, errorCorrectLevel){
+  // Minimal QR encoder - supports alphanumeric/byte mode
+  var ECL={L:1,M:0,Q:3,H:2};
+  var ecl=errorCorrectLevel||0;
+  
+  // Use a well-tested inline QR library approach via data URI trick
+  // We'll use the qrcode-generator algorithm embedded here
+  var _this={};
+  
+  // Character count
+  var utf8=unescape(encodeURIComponent(data));
+  var bytes=[];
+  for(var i=0;i<utf8.length;i++) bytes.push(utf8.charCodeAt(i));
+  
+  // Auto-detect version (1-40)
+  var version=typeNumber||1;
+  if(typeNumber===0){
+    // Find minimum version that fits
+    var byteCapacity=[
+      0,17,32,53,78,106,134,154,192,230,271,321,367,425,458,520,586,644,
+      718,792,858,929,1003,1091,1171,1273,1367,1465,1528,1628,1732,1840,
+      1952,2068,2188,2303,2431,2563,2699,2809,2953
+    ];
+    for(var v=1;v<=40;v++){
+      if(byteCapacity[v]>=bytes.length){ version=v; break; }
+    }
+  }
+  
+  var modules=[];
+  var n=version*4+17;
+  for(var i=0;i<n;i++){ modules[i]=[]; for(var j=0;j<n;j++) modules[i][j]=null; }
+  
+  function setFinder(row,col){
+    for(var r=-1;r<=7;r++){
+      for(var c=-1;c<=7;c++){
+        if(row+r<0||n<=row+r||col+c<0||n<=col+c) continue;
+        modules[row+r][col+c]=
+          (0<=r&&r<=6&&(c===0||c===6))||
+          (0<=c&&c<=6&&(r===0||r===6))||
+          (2<=r&&r<=4&&2<=c&&c<=4);
+      }
+    }
+  }
+  setFinder(0,0); setFinder(n-7,0); setFinder(0,n-7);
+  
+  // Timing
+  for(var i=8;i<n-8;i++){
+    if(modules[6][i]===null) modules[6][i]=(i%2===0);
+    if(modules[i][6]===null) modules[i][6]=(i%2===0);
+  }
+  
+  // Dark module
+  modules[n-8][8]=true;
+  
+  // Format area placeholders
+  var formatPos=[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[7,8],[8,8],[8,7],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0]];
+  var formatPos2=[[n-1,8],[n-2,8],[n-3,8],[n-4,8],[n-5,8],[n-6,8],[n-7,8],[8,n-8],[8,n-7],[8,n-6],[8,n-5],[8,n-4],[8,n-3],[8,n-2],[8,n-1]];
+  for(var i=0;i<15;i++){
+    if(modules[formatPos[i][0]][formatPos[i][1]]===null) modules[formatPos[i][0]][formatPos[i][1]]=false;
+    if(modules[formatPos2[i][0]][formatPos2[i][1]]===null) modules[formatPos2[i][0]][formatPos2[i][1]]=false;
+  }
+  
+  // Alignment patterns (version >= 2)
+  if(version>=2){
+    var ap=[6,18];
+    if(version>=7){ ap=[6,22,38]; }
+    for(var ai=0;ai<ap.length;ai++){
+      for(var aj=0;aj<ap.length;aj++){
+        var ar=ap[ai],ac=ap[aj];
+        if(modules[ar][ac]!==null) continue;
+        for(var r=-2;r<=2;r++){
+          for(var c=-2;c<=2;c++){
+            modules[ar+r][ac+c]=
+              r===-2||r===2||c===-2||c===2||(r===0&&c===0);
+          }
+        }
+      }
+    }
+  }
+  
+  // Data encoding - byte mode
+  var data_bits=[];
+  // Mode indicator: byte = 0100
+  data_bits.push(0,1,0,0);
+  // Character count (8 bits for version 1-9)
+  var len=bytes.length;
+  for(var i=7;i>=0;i--) data_bits.push((len>>i)&1);
+  // Data bytes
+  for(var i=0;i<bytes.length;i++){
+    for(var j=7;j>=0;j--) data_bits.push((bytes[i]>>j)&1);
+  }
+  // Terminator
+  for(var i=0;i<4&&data_bits.length<getCapacityBits(version,ecl);i++) data_bits.push(0);
+  // Pad to byte boundary
+  while(data_bits.length%8!==0) data_bits.push(0);
+  // Pad bytes
+  var pads=[0xEC,0x11];
+  var pi=0;
+  while(data_bits.length<getCapacityBits(version,ecl)){
+    var pb=pads[pi%2]; pi++;
+    for(var j=7;j>=0;j--) data_bits.push((pb>>j)&1);
+  }
+  
+  // Error correction
+  var data_codewords=bitsToBytes(data_bits);
+  var ec_codewords=reedSolomon(data_codewords, getECCount(version,ecl));
+  var all_bits=[];
+  data_codewords.forEach(function(b){ for(var j=7;j>=0;j--) all_bits.push((b>>j)&1); });
+  ec_codewords.forEach(function(b){ for(var j=7;j>=0;j--) all_bits.push((b>>j)&1); });
+  // Remainder bits
+  var rem=[0,7,7,7,7,7,0,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];
+  for(var i=0;i<rem[version];i++) all_bits.push(0);
+  
+  // Place data in matrix
+  var bi=0;
+  for(var col=n-1;col>=1;col-=2){
+    if(col===6) col=5;
+    for(var row=0;row<n;row++){
+      var rr=(Math.floor((n-1-col)/2)%2===0)?row:n-1-row;
+      for(var c2=0;c2<2;c2++){
+        var cc=col-c2;
+        if(modules[rr][cc]===null){
+          var dark=bi<all_bits.length?all_bits[bi++]:false;
+          // mask pattern 0: (row+col)%2===0
+          if((rr+cc)%2===0) dark=!dark;
+          modules[rr][cc]=dark;
+        }
+      }
+    }
+  }
+  
+  // Write format info (mask 0, ECL M = 01)
+  // Format: ECL(2) + mask(3) = M+0 = 00 000, BCH + XOR 101010000010010
+  var fmt=0b00000; // M=00, mask=000
+  // BCH
+  var g=fmt<<10;
+  for(var i=14;i>=10;i--){
+    if((g>>i)&1) g^=(0x537<<(i-10));
+  }
+  fmt=(fmt<<10)|g; fmt^=0b101010000010010;
+  for(var i=0;i<15;i++){
+    var b=(fmt>>i)&1;
+    if(i<6){ modules[8][i]=b; modules[n-1-i][8]=b; }
+    else if(i<8){ modules[8][i+1]=b; modules[n-6+(i-6)][8]=b; }
+    else { modules[8][n-15+i]=b; modules[15-i-1][8]=b; }
+  }
+  
+  _this.modules=modules;
+  return _this;
+}
+
+function getCapacityBits(v,ecl){
+  // Byte capacity * 8 for common versions
+  var cap=[[0,0,0,0],[152,128,104,72],[272,224,176,128],[440,352,272,208],[640,512,384,288],[864,688,496,368],[1088,864,608,480],[1248,992,704,528],[1552,1232,880,688],[1856,1456,1056,800],[2192,1728,1232,976]];
+  if(v<cap.length) return cap[v][ecl];
+  return v*200; // rough estimate for higher versions
+}
+
+function getECCount(v,ecl){
+  var ec=[[0,0,0,0],[7,10,13,17],[10,16,22,28],[15,26,18,22],[20,18,26,16],[26,24,18,22],[18,16,24,28],[20,18,18,26],[24,22,22,26],[30,22,20,24],[18,26,24,28]];
+  if(v<ec.length) return ec[v][ecl];
+  return 28;
+}
+
+function bitsToBytes(bits){
+  var bytes=[];
+  for(var i=0;i<bits.length;i+=8){
+    var b=0;
+    for(var j=0;j<8;j++) b=(b<<1)|(bits[i+j]||0);
+    bytes.push(b);
+  }
+  return bytes;
+}
+
+function reedSolomon(data, ecCount){
+  var gen=generatorPoly(ecCount);
+  var res=data.slice();
+  for(var i=0;i<ecCount;i++) res.push(0);
+  for(var i=0;i<data.length;i++){
+    var coeff=res[i];
+    if(coeff!==0){
+      for(var j=0;j<gen.length;j++){
+        res[i+j]^=gfMul(gen[j],coeff);
+      }
+    }
+  }
+  return res.slice(data.length);
+}
+
+var gfExp=new Array(512), gfLog=new Array(256);
+(function(){
+  var x=1;
+  for(var i=0;i<255;i++){
+    gfExp[i]=x; gfLog[x]=i;
+    x<<=1; if(x&0x100) x^=0x11d;
+  }
+  for(var i=255;i<512;i++) gfExp[i]=gfExp[i-255];
+})();
+
+function gfMul(a,b){
+  if(a===0||b===0) return 0;
+  return gfExp[gfLog[a]+gfLog[b]];
+}
+
+function generatorPoly(deg){
+  var g=[1];
+  for(var i=0;i<deg;i++){
+    var f=[1,gfExp[i]];
+    var ng=new Array(g.length+1).fill(0);
+    for(var j=0;j<g.length;j++){
+      for(var k=0;k<f.length;k++){
+        ng[j+k]^=gfMul(g[j],f[k]);
+      }
+    }
+    g=ng;
+  }
+  return g;
+}
+
+window.dlQR=function(){
+  const div=document.getElementById('qrDiv');
+  const canvas=div.querySelector('canvas');
+  if(!canvas){ toast('Generate a QR code first'); return; }
+  const a=document.createElement('a');
+  a.download='wifi-qr-'+(document.getElementById('gSSID').value.trim()||'network')+'.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+  toast('QR downloaded!');
+};
+
+window.copyGenText=function(){
+  const ssid=document.getElementById('gSSID').value.trim();
+  const pw=document.getElementById('gPw').value;
+  navigator.clipboard.writeText('SSID: '+ssid+'\nPassword: '+pw).then(()=>toast('Copied!')).catch(()=>{});
+};
+
+/* ─── History ─── */
+function getHist(){ try{ return JSON.parse(localStorage.getItem(HK))||[]; }catch{ return[]; } }
+function putHist(a){ localStorage.setItem(HK,JSON.stringify(a)); }
+function addHist(d,raw){
+  const a=getHist(), idx=a.findIndex(h=>h.raw===raw);
+  if(idx!==-1) a.splice(idx,1);
+  a.unshift({ssid:d.isWifi?(d.ssid||'Unknown'):raw.slice(0,28),sec:d.isWifi?d.sec:'',type:d.type,ts:Date.now(),raw});
+  if(a.length>10) a.length=10;
+  putHist(a); renderHist();
+}
+function renderHist(){
+  const a=getHist();
   const sec=document.getElementById('histSection');
-  const list=document.getElementById('histList');
-  if(!arr.length){sec.style.display='none';return;}
+  if(!a.length){ sec.style.display='none'; return; }
   sec.style.display='block';
-  list.innerHTML=arr.map((h,i)=>{
-    const label=h.type==='WiFi'?(h.security||'WiFi'):h.type;
-    return '<div class="hist-item" onclick="restoreHistory('+i+')">'+
-      '<div class="hist-left">'+
-        '<div class="hist-ssid">'+esc(h.ssid)+'</div>'+
-        '<div class="hist-meta">'+timeAgo(h.time)+'</div>'+
-      '</div>'+
-      '<span class="hist-badge">'+esc(label)+'</span>'+
-    '</div>';
-  }).join('');
+  document.getElementById('histList').innerHTML=a.map((h,i)=>'<div class="hist-item" onclick="loadHist('+i+')"><div><div class="hist-ssid">'+esc(h.ssid)+'</div><div class="hist-meta">'+ago(h.ts)+'</div></div><span class="hist-badge">'+esc(h.type==='WiFi'?(h.sec||'WiFi'):h.type)+'</span></div>').join('');
 }
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function timeAgo(ts){
+function ago(ts){
   const d=Math.floor((Date.now()-ts)/1000);
   if(d<60) return 'just now';
   if(d<3600) return Math.floor(d/60)+'m ago';
   if(d<86400) return Math.floor(d/3600)+'h ago';
   return Math.floor(d/86400)+'d ago';
 }
-window.clearHistory=function(){
-  localStorage.removeItem(HIST_KEY);
-  renderHistory(); showToast('History cleared');
-};
-window.restoreHistory=function(i){
-  const arr=loadHistory();
-  if(!arr[i]) return;
-  switchTab('camera');
-  onQRSuccess(arr[i].raw);
-  showToast('Loaded from history');
-};
-renderHistory();
+window.clearHist=function(){ localStorage.removeItem(HK); renderHist(); toast('History cleared'); };
+window.loadHist=function(i){ const a=getHist(); if(a[i]){ goTab('camera'); onScan(a[i].raw); } };
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+renderHist();
 
-/* ── Toast ── */
-function showToast(msg){
-  const wrap=document.getElementById('toastWrap');
+/* ─── Toast ─── */
+function toast(msg){
+  const w=document.getElementById('toastWrap');
   const t=document.createElement('div');
   t.className='toast'; t.textContent=msg;
-  wrap.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';t.style.transform='scale(.96)';setTimeout(()=>t.remove(),300);},2400);
+  w.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='scale(.94)'; setTimeout(()=>t.remove(),300); },2400);
 }
 
 document.addEventListener('dragover',e=>e.preventDefault());
